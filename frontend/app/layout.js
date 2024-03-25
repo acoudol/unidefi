@@ -16,7 +16,7 @@ export default function RootLayout({ children }) {
       <head>
           <title>UniDeFi</title>
       </head>
-      <body className={inter.className}>
+      <body className="angled-gradient">
         <RainbowKitAndChakraProvider>
           <Layout>
             {children}

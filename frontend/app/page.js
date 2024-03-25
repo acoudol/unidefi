@@ -1,5 +1,7 @@
 'use client';
 import { useAccount } from "wagmi";
+import { Flex } from "@chakra-ui/react";
+import Swap from '../components/Swap'
 
 export default function Home() {
 
@@ -8,7 +10,9 @@ export default function Home() {
   return (
     <>
       {isConnected ? (
-        <p> Connecté </p>
+          <Flex direction="column" width="40%">
+            <Swap />
+          </Flex>
       ) : (
         <p> Non connecté </p>
       )}

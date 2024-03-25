@@ -15,6 +15,7 @@ const Layout = ({ children }) => {
           grow="1"
           p="2rem"
           direction="column"
+          alignItems="center"
         >
             {children}
         </Flex>
