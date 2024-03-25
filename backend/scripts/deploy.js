@@ -4,7 +4,7 @@ const {ethers} = require("hardhat")
 async function main() {
   const [owner, account1] = await ethers.getSigners() // pour test hardhat
 
-  const udfi = await hre.ethers.deployContract("Udfi");
+  const udfi = await hre.ethers.deployContract("Udfi", [owner]);
   await udfi.waitForDeployment();
   console.log(
     `UDFI deployed to ${udfi.target}`
@@ -22,13 +22,15 @@ async function main() {
   console.log("Balance contrat:",balance00.toString())
 
   // test hardhat - transfert de 100$UDFI de Unidefi à l'address 1 
-  await unidefi.foo(account1.address,100)
+  //console.log("owner: ", owner)
+  //console.log("account1: ", account1)
+  await unidefi.foo(owner.address,100)
 
   const balance0 = await udfi.balanceOf(unidefi.getAddress())
-  const balance1 = await udfi.balanceOf(account1.address)
+  const balance1 = await udfi.balanceOf(owner.address)
 
   console.log("Balance contrat:",balance0.toString())
-  console.log("Balance compte 1:",balance1.toString())
+  console.log("Balance compte 0:",balance1.toString())
   
 }
  
