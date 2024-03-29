@@ -2,36 +2,26 @@ const hre = require("hardhat");
 const {ethers} = require("hardhat")
 
 async function main() {
-  const [owner, account1] = await ethers.getSigners() // pour test hardhat
+  const [owner] = await ethers.getSigners() // pour test hardhat
 
-  const udfi = await hre.ethers.deployContract("Udfi", [owner]);
-  await udfi.waitForDeployment();
+  const Udfi = await hre.ethers.deployContract("Udfi", [owner, "999999"]);
+  await Udfi.waitForDeployment();
   console.log(
-    `UDFI deployed to ${udfi.target}`
+    `UDFI deployed to ${Udfi.target}`
   );
 
-  const unidefi = await hre.ethers.deployContract("Unidefi",[udfi.getAddress()]);
+  const Usdc = await hre.ethers.deployContract("Usdc", [owner, "999999"]);
+  await Usdc.waitForDeployment();
+  console.log(
+    `USDC deployed to ${Usdc.target}`
+  );
+
+  const unidefi = await hre.ethers.deployContract("Unidefi",[Udfi.getAddress(), Usdc.getAddress()]);
   await unidefi.waitForDeployment();
   console.log(
     `Unidefi deployed to ${unidefi.target}`
   );
 
-  // test hardhat - au déploiement, mint de 100 tokens $UDFI sur le contrat Unidefi
-  await udfi.faucet(unidefi.getAddress(),100)
-  const balance00 = await udfi.balanceOf(unidefi.getAddress())
-  console.log("Balance contrat:",balance00.toString())
-
-  // test hardhat - transfert de 100$UDFI de Unidefi à l'address 1 
-  //console.log("owner: ", owner)
-  //console.log("account1: ", account1)
-  await unidefi.foo(owner.address,100)
-
-  const balance0 = await udfi.balanceOf(unidefi.getAddress())
-  const balance1 = await udfi.balanceOf(owner.address)
-
-  console.log("Balance contrat:",balance0.toString())
-  console.log("Balance compte 0:",balance1.toString())
-  
 }
  
 main().catch((error) => {

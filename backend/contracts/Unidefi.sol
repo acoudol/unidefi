@@ -2,190 +2,128 @@
 pragma solidity 0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "hardhat/console.sol";
 
-contract Unidefi{
-    using SafeMath for uint256;
+
+contract Unidefi is Ownable{
 
     IERC20 udfi;
-    IERC20 weth;
-    IERC20 lpToken;
-
-//    uint256 public liquidityFee;
-
-    // reserveWeth x poolWethValue == reserveUdfi x poolUdfiValue
-    uint public reserveWeth;
-    uint public reserveUdfi;
-
-
-//    uint poolWethValue;
-//    uint poolUdfiValue;
+    IERC20 usdc;
 
     mapping(address => uint) balanceLP;
+    uint lpTotalSupply;
 
-    constructor(address _udfiAddress, address _wethAddress){
+    constructor(address _udfiAddress, address _usdcAddress) Ownable(msg.sender){
         udfi = IERC20(_udfiAddress);
-        weth = IERC20(_wethAddress);
-        lpToken = IERC20
+        usdc = IERC20(_usdcAddress);
     }
 
-    function getBalanceWeth(address _address) public returns(uint){
-        return weth.balanceOf(_address);
-    }
-    function getBalanceUdfi(address _address) public returns(uint){
-        return udfi.balanceOf(_address);
+    // ratio pool (usdc / udfi)x1000
+    function getRatioPoolx1000() public view returns(uint){
+        uint ratiox1000;
+        if(udfi.balanceOf(address(this))==0){
+            ratiox1000 = 1000; // 1 pour 1 au démarrage de la pool
+        }else{
+            ratiox1000 = usdc.balanceOf(address(this)) * (1000) / (udfi.balanceOf(address(this)));
+        }
+        return ratiox1000;
     }
 
-    function getPoolReserveWeth() public returns(uint){
-        return weth.balanceOf(address(this));
+    function getPoolInfos() public view returns(uint amountUsdc, uint amountUdfi){
+        return(usdc.balanceOf(address(this)), udfi.balanceOf(address(this)));
     }
 
-    function getPoolReserveUdfi() public{
-        return udfi.balanceOf(address(this));
+    function getLPfrom(address _from) public view returns(uint){
+        return(balanceLP[_from]);
+    }
+
+    function getLPTotalSupply() public view returns(uint){
+        return(lpTotalSupply);
+    }
+
+    function getValue1000Udfi() public view returns(uint){
+        // Qa.Va = Qb.Vb    =>    Vb = Qa.Va / Qb (avec Va = 1$)
+        //uint value1000Udfi = (usdc.balanceOf(address(this)) * (1000) / ratioPoolx1000) * (1000);
+        uint value1000Udfi = (usdc.balanceOf(address(this)) * (1000) / udfi.balanceOf(address(this)));
+        return value1000Udfi;
     }
 
     function addLiquidity(uint _amountA, uint _amountB) public{
-        require(_amountA == _amountB, 'same quantities are required');
-        require(_amountA > getBalanceWeth(msg.sender), 'insufficient weth in user balance');
-        require(_amountB > getBalanceUdfi(msg.sender), 'insufficient udfi in user balance');
-        weth.transfer(address(this), _amountA);
-        udfi.transfer(address(this), _amountB);
-        reserveWeth =+ _amountA;
-        reserveUdfi =+ _amountB;
+        require(_amountA > 0 && _amountA < usdc.balanceOf(msg.sender), 'incorrect usdc amount');
+        require(_amountB > 0 && _amountB < udfi.balanceOf(msg.sender), 'incorrect udfi amount');
+        //require(_amountB >= (_amountA * (1000) / getRatioPoolx1000()), 'pool ratio not respected');
+        
+        //usdc.approve(address(this), _amountA); // doit être géré en JS directement sur le contrat usdc
+        require(usdc.allowance(msg.sender, address(this)) >= _amountA, 'insufficient usdc allowance');
+        //udfi.approve(address(this), _amountB); // doit être géré en JS directement sur le contrat usdc
+        require(udfi.allowance(msg.sender, address(this)) >= _amountB, 'insufficient udfi allowance');
 
-        _mintLP(_amountA);
+        usdc.transferFrom(msg.sender, address(this), _amountA);
+        udfi.transferFrom(msg.sender, address(this), _amountB);
+
+        _mintLP(_amountA, _amountB);
     }
 
-    function removeLiquidity(uint _amountLP) public{
+    function removeAllLiquidity() public{
         require(balanceLP[msg.sender] > 0, 'user has no share in the pool');
-        require(_amountLP >= balanceLP(msg.sender), 'insufficient LPtokens balance');
-        weth.transferFrom(address(this), msg.sender, _amountLP);
-        udfi.transferFrom(address(this), msg.sender, _amountLP);
+        
+        // uint poolSharex100000 = balanceLP[msg.sender]*(100000) / lpTotalSupply;
+        // uint usdcToRetrieve = usdc.balanceOf(address(this))*(poolSharex100000) / (lpTotalSupply*(100000));
+        // uint udfiToRetrieve = udfi.balanceOf(address(this))*(poolSharex100000) / (lpTotalSupply*(100000));
 
-        burnLP(_amountLP);
+        uint usdcToRetrieve = usdc.balanceOf(address(this)) * balanceLP[msg.sender] / lpTotalSupply;
+        uint udfiToRetrieve = udfi.balanceOf(address(this)) * balanceLP[msg.sender] / lpTotalSupply;
+
+        usdc.transfer(msg.sender, usdcToRetrieve);
+        udfi.transfer(msg.sender, udfiToRetrieve);
+
+        _burnLP();
     }
 
-    function swapWETHforUDFI(uint256 _amountWETH) public {
-        require(_amountWETH > getBalanceWeth(msg.sender), 'insufficient user balance');
-        uint amountUdfiOut = getAmountOut(_amountWETH, reserveWeth, reserveUdfi);
-          
-        weth.transfer(address(this), _amountWETH);
-        reserveWeth =+ _amountWETH;
-        udfi.transferFrom(address(this), msg.sender, amountUdfiOut);
-        reserveUdfi =- amountUdfiOut;
+    function swapUSDCforUDFI(uint256 _amountUSDC) public {
+        require(_amountUSDC < usdc.balanceOf(msg.sender), 'insufficient user balance');
+        uint amountUdfiOut = getAmountOut(_amountUSDC, usdc.balanceOf(address(this)), udfi.balanceOf(address(this)));
+
+        require(usdc.allowance(msg.sender, address(this)) >= _amountUSDC, 'insufficient usdc allowance');  
+        usdc.transferFrom(msg.sender, address(this), _amountUSDC);
+        udfi.transfer(msg.sender, amountUdfiOut);
     }
 
-    function swapUDFIForWETH(uint256 _amountUDFI) public {
-        require(_amountUDFI > getBalanceUdfi(msg.sender), 'insufficient user balance');
-        uint amountWethOut = getAmountOut(_amountUDFI, reserveUdfi, poolWethalance);
-          
-        udfi.transfer(address(this), _amountUDFI);
-        reserveUdfi =+ _amountUDFI;      
-        weth.transferFrom(address(this), msg.sender, amountWethOut);
-        reserveWeth =- amountWethOut;
+    function swapUDFIForUSDC(uint256 _amountUDFI) public {
+        require(_amountUDFI < udfi.balanceOf(msg.sender), 'insufficient user balance');
+        uint amountUsdcOut = getAmountOut(_amountUDFI, udfi.balanceOf(address(this)), usdc.balanceOf(address(this)));
+
+        require(udfi.allowance(msg.sender, address(this)) >= _amountUDFI, 'insufficient udfi allowance');  
+        udfi.transferFrom(msg.sender, address(this), _amountUDFI);
+        usdc.transfer(msg.sender, amountUsdcOut);
     }
 
     function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) internal pure returns (uint amountOut) {
         require(amountIn > 0, 'INSUFFICIENT_INPUT_AMOUNT');
         require(reserveIn > 0 && reserveOut > 0, 'INSUFFICIENT_LIQUIDITY');
-        uint amountInWithFee = amountIn.mul(997);   // 0.3% fee, benefiting the pool (so the liquidity providers)
-        uint numerator = amountInWithFee.mul(reserveOut);
-        uint denominator = reserveIn.mul(1000).add(amountInWithFee);
+        uint amountInWithFee = amountIn * (997);   // 0.3% fee, benefiting the pool (so the liquidity providers)
+        uint numerator = amountInWithFee * (reserveOut);
+        uint denominator = reserveIn * (1000) + (amountInWithFee);
         amountOut = numerator / denominator;
     }
 
-    function _mintLP(uint _amount) private{
-        // Temporairement
-        balanceLP[msg.sender] =+ _amount;
+    function _mintLP(uint _amountA, uint _amountB) private{
+        //uint poolSharex1000 = _amount*(1000) / usdc.balanceOf(address(this));
+        //balanceLP[msg.sender] += poolSharex1000;
+        //lpTotalSupply += poolSharex1000;
+        //_mint(msg.sender,poolSharex1000);
+
+        // sachant x * y = constante dans la pool, on peut utiliser _amountA * _amountB pour 
+        // définir le nombre de LP à allouer sans se préoccuper du ratio de la pool
+        uint lp = _amountA * _amountB;
+        balanceLP[msg.sender] += lp;
+        lpTotalSupply += lp;
     }
-    function _burnLP(uint _amount) private{
-        // Temporairement
-        balanceLP[msg.sender] =- _amount;
+    function _burnLP() private{
+        lpTotalSupply -= balanceLP[msg.sender];
+        balanceLP[msg.sender] = 0;
+        //_burn(msg.sender,_amount);
     }
-
-
-    // IERC20 udfi;
-    // IERC20 weth;
-
-    // mapping(address => uint256) totalWETH;
-    // mapping(address => uint256) totalUDFI;
-    // uint256 public liquidityFee;
-    // uint256 private reserveWeth;
-    // uint256 private reserveUdfi;
-    // uint32  private blockTimestampLast;
-
-    // constructor(address _udfiAddress){
-    //     udfi = IERC20(_udfiAddress);
-    //     weth = IERC20("0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14"); // WETH9 sepolia
-    //     liquidityFee = 0.0003; // 0.3%
-    // }
-
-    // // function foo(address _to, uint _amount) external{
-    // //     udfi.transfer(_to, _amount);
-    // // }
-
-    // event Swapped(address sender, uint amountWethIn, uint amountUdfiIn, uint amountWethOut, uint amountUdfiOut,); // Emitted each time a swap is made
-    // event MintLP(address sender, uint amountWeth, uint amountUdfi); // Emitted each time liquidity tokens are created via mint
-    // event BurnLP(address sender, uint amount0, uint amount1, address to); //Emitted each time liquidity tokens are destroyed via burn
-
-    // function getReserves() external view returns(uint256 _reserveWeth, uint256 _reserveUdfi, uint32 blockTimestampLast){
-    //     _reserveWeth = reserveWeth;
-    //     _reserveUdfi = reserveUdfi;
-    //     //_blockTimestampLast = blockTimestampLast;
-    // }
-
-    // function _transfer(address _from, address _to, uint256 amount) internal {
-    //     require(_from != address(0), 'cant transfer from the zero address');
-    //     require(_to != address(0), 'cant transfer to the zero address');
-
-    //     _balances[_from] = _balances[_from].sub(amount, 'transfer amount exceeds balance');
-    //     _balances[_to] = _balances[_to].add(amount);
-    //     //emit Transfer(_from, _to, amount);
-    // }
-
-    // // Creates pool tokens
-    // function mintLP(address _to) private returns(uint256 liquidity){
-
-    // }
-
-    // // Destroy pool tokens
-    // function burnLP(address _to) external returns (uint amountWeth, uint amountUdfi);{
-
-    // }
-
-
-    // function addLiquidity(uint256 _amountWETH, uint256 _amountUDFI) public{
-    //     // Ensure that the user has approved the transfer
-
-
-    //     // Transfer the tokens from the caller to the contract
-    //     _transfer(msg.sender, address(this), amountWETH);
-    //     _transfer(msg.sender, address(this), _amountUDFI);
-
-    //     // Add the tokens to the pool
-    //     totalWETH[address(this)] += _amountWETH;
-    //     totalUDFI[address(this)] += _amountUDFI;
-    // }
-
-    // function removeLiquidity() external{
-
-    // }
-
-    // function swapWETHforUDFI(uint256 amountWETH) external {
-    //     weth.withdraw(amountWETH);
-    //     uint256 amountUDFI = amountWETH.div(10000).mul(9950).div(9950 + liquidityProviderFee);
-    //     balances[msg.sender] = balances[msg.sender].add(amountUDFI);
-    //     _transfer(address(this), msg.sender, amountUDFI);
-    // }
-
-    // function swapUDFIforWETH(uint256 amountUDFI) external {
-    //     uint256 amountWETH = amountUDFI.div(10000).mul(9950).div(9950 + liquidityProviderFee);
-    //     balances[msg.sender] = balances[msg.sender].sub(amountUDFI);
-    //     _transfer(msg.sender, address(this), amountUDFI);
-    //     _transfer(address(this), msg.sender, amountWETH);
-    //     weth.deposit{value: amountWETH}();
-    // }
-
 
 }

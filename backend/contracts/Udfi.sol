@@ -6,8 +6,8 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract Udfi is ERC20{
 
-    constructor(uint256 initialSupply) public ERC20("UniDeFi token", "UDFI") {
-        _mint(msg.sender, initialSupply);
+    constructor(address _address, uint256 _initialSupply) ERC20("UniDeFi token", "UDFI") {
+        _mint(_address, _initialSupply);
     }
 
 }
