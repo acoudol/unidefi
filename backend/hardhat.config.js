@@ -22,8 +22,12 @@ module.exports = {
         localhost: {
             url: "http://127.0.0.1:8545",
             chainId: 31337,
-            accounts: [`0x${PRIVATE_KEY_HARDHAT}`]
+            //accounts: [`0x${PRIVATE_KEY_HARDHAT}`]
         },
+        hardhat: {
+            blockGasLimit: 10000000000000,
+            //allowUnlimitedContractSize: true,
+          },
     },
     etherscan: {
         apiKey: ETHERSCAN_API_KEY

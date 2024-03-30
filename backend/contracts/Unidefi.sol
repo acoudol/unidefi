@@ -11,12 +11,49 @@ contract Unidefi is Ownable{
     IERC20 udfi;
     IERC20 usdc;
 
-    mapping(address => uint) balanceLP;
-    uint lpTotalSupply;
+    mapping(address => uint) private balanceLP;
+    uint private lpTotalSupply;
+
+    event UsdcSwap(address userAddress, uint amountUsdc);
+    event UdfiSwap(address userAddress, uint amountUdfi);
+
+    error PoolBalanceNotRespected();
+    error InsufficientAllowance();
+    error InsufficientBalance();
+    error IncorrectAmount();
+    error InsufficientLiquidity();
+    error NoPoolShare();
 
     constructor(address _udfiAddress, address _usdcAddress) Ownable(msg.sender){
         udfi = IERC20(_udfiAddress);
         usdc = IERC20(_usdcAddress);
+    }
+
+    function getPoolInfos() public view returns(uint amountUsdc, uint amountUdfi){
+        return(usdc.balanceOf(address(this)), udfi.balanceOf(address(this)));
+    }
+
+    // function getLPFrom(address _from) public view returns(uint){
+    //     return(balanceLP[_from]);
+    // }
+
+    function getMyLP() public view returns(uint){
+        return(balanceLP[msg.sender]);
+    }
+
+    function getLPTotalSupply() public view returns(uint){
+        return(lpTotalSupply);
+    }
+
+    function getValueUdfiX1000() public view returns(uint){
+        // Qa.Va = Qb.Vb    =>    Vb = Qa.Va / Qb (avec Va = 1$)
+        uint value1000Udfi;
+        if(udfi.balanceOf(address(this)) == 0){
+            value1000Udfi = 0;
+        }else{
+            value1000Udfi = (usdc.balanceOf(address(this)) * (1000) / udfi.balanceOf(address(this)));
+        }
+        return value1000Udfi;
     }
 
     // ratio pool (usdc / udfi)x1000
@@ -30,47 +67,32 @@ contract Unidefi is Ownable{
         return ratiox1000;
     }
 
-    function getPoolInfos() public view returns(uint amountUsdc, uint amountUdfi){
-        return(usdc.balanceOf(address(this)), udfi.balanceOf(address(this)));
-    }
+    // 
+    function addLiquidity(uint _amountUsdc, uint _amountUdfi) public{
+        if( _amountUsdc > usdc.balanceOf(msg.sender) 
+            || _amountUdfi == 0 
+            || _amountUdfi > udfi.balanceOf(msg.sender)){
+            revert IncorrectAmount();
+        }
 
-    function getLPfrom(address _from) public view returns(uint){
-        return(balanceLP[_from]);
-    }
+        if(_amountUsdc < ((_amountUdfi * getRatioPoolx1000()) / 1000)){
+            revert PoolBalanceNotRespected();
+        }
 
-    function getLPTotalSupply() public view returns(uint){
-        return(lpTotalSupply);
-    }
+        if(usdc.allowance(msg.sender, address(this)) < _amountUsdc || udfi.allowance(msg.sender, address(this)) < _amountUdfi){
+            revert InsufficientAllowance();
+        }
 
-    function getValue1000Udfi() public view returns(uint){
-        // Qa.Va = Qb.Vb    =>    Vb = Qa.Va / Qb (avec Va = 1$)
-        //uint value1000Udfi = (usdc.balanceOf(address(this)) * (1000) / ratioPoolx1000) * (1000);
-        uint value1000Udfi = (usdc.balanceOf(address(this)) * (1000) / udfi.balanceOf(address(this)));
-        return value1000Udfi;
-    }
+        _mintLP(_amountUsdc, _amountUdfi);
 
-    function addLiquidity(uint _amountA, uint _amountB) public{
-        require(_amountA > 0 && _amountA < usdc.balanceOf(msg.sender), 'incorrect usdc amount');
-        require(_amountB > 0 && _amountB < udfi.balanceOf(msg.sender), 'incorrect udfi amount');
-        //require(_amountB >= (_amountA * (1000) / getRatioPoolx1000()), 'pool ratio not respected');
-        
-        //usdc.approve(address(this), _amountA); // doit être géré en JS directement sur le contrat usdc
-        require(usdc.allowance(msg.sender, address(this)) >= _amountA, 'insufficient usdc allowance');
-        //udfi.approve(address(this), _amountB); // doit être géré en JS directement sur le contrat usdc
-        require(udfi.allowance(msg.sender, address(this)) >= _amountB, 'insufficient udfi allowance');
-
-        usdc.transferFrom(msg.sender, address(this), _amountA);
-        udfi.transferFrom(msg.sender, address(this), _amountB);
-
-        _mintLP(_amountA, _amountB);
+        usdc.transferFrom(msg.sender, address(this), _amountUsdc);
+        udfi.transferFrom(msg.sender, address(this), _amountUdfi);
     }
 
     function removeAllLiquidity() public{
-        require(balanceLP[msg.sender] > 0, 'user has no share in the pool');
-        
-        // uint poolSharex100000 = balanceLP[msg.sender]*(100000) / lpTotalSupply;
-        // uint usdcToRetrieve = usdc.balanceOf(address(this))*(poolSharex100000) / (lpTotalSupply*(100000));
-        // uint udfiToRetrieve = udfi.balanceOf(address(this))*(poolSharex100000) / (lpTotalSupply*(100000));
+        if(balanceLP[msg.sender] == 0){
+            revert NoPoolShare();
+        }
 
         uint usdcToRetrieve = usdc.balanceOf(address(this)) * balanceLP[msg.sender] / lpTotalSupply;
         uint udfiToRetrieve = udfi.balanceOf(address(this)) * balanceLP[msg.sender] / lpTotalSupply;
@@ -78,30 +100,48 @@ contract Unidefi is Ownable{
         usdc.transfer(msg.sender, usdcToRetrieve);
         udfi.transfer(msg.sender, udfiToRetrieve);
 
-        _burnLP();
+        _burnAllUserLP();
     }
 
-    function swapUSDCforUDFI(uint256 _amountUSDC) public {
-        require(_amountUSDC < usdc.balanceOf(msg.sender), 'insufficient user balance');
+    function swapUSDCForUDFI(uint256 _amountUSDC) public {
+        if(_amountUSDC > usdc.balanceOf(msg.sender)){
+            revert InsufficientBalance();
+        }
+        if(_amountUSDC > usdc.allowance(msg.sender, address(this))){
+            revert InsufficientAllowance();
+        }
         uint amountUdfiOut = getAmountOut(_amountUSDC, usdc.balanceOf(address(this)), udfi.balanceOf(address(this)));
 
-        require(usdc.allowance(msg.sender, address(this)) >= _amountUSDC, 'insufficient usdc allowance');  
         usdc.transferFrom(msg.sender, address(this), _amountUSDC);
         udfi.transfer(msg.sender, amountUdfiOut);
+
+        emit UsdcSwap(msg.sender, _amountUSDC);
     }
 
     function swapUDFIForUSDC(uint256 _amountUDFI) public {
-        require(_amountUDFI < udfi.balanceOf(msg.sender), 'insufficient user balance');
+        if(_amountUDFI > udfi.balanceOf(msg.sender)){
+            revert InsufficientBalance();
+        }
+        if(_amountUDFI > udfi.allowance(msg.sender, address(this))){
+            revert InsufficientAllowance();
+        }
         uint amountUsdcOut = getAmountOut(_amountUDFI, udfi.balanceOf(address(this)), usdc.balanceOf(address(this)));
 
-        require(udfi.allowance(msg.sender, address(this)) >= _amountUDFI, 'insufficient udfi allowance');  
         udfi.transferFrom(msg.sender, address(this), _amountUDFI);
         usdc.transfer(msg.sender, amountUsdcOut);
+
+        emit UdfiSwap(msg.sender, _amountUDFI);
     }
 
     function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) internal pure returns (uint amountOut) {
-        require(amountIn > 0, 'INSUFFICIENT_INPUT_AMOUNT');
-        require(reserveIn > 0 && reserveOut > 0, 'INSUFFICIENT_LIQUIDITY');
+        //require(amountIn > 0, 'INSUFFICIENT_INPUT_AMOUNT');
+        if(amountIn == 0){
+            revert IncorrectAmount();
+        }
+        //require(reserveIn > 0 && reserveOut > 0, 'INSUFFICIENT_LIQUIDITY');
+        if(reserveOut == 0){
+            revert InsufficientLiquidity();
+        }
         uint amountInWithFee = amountIn * (997);   // 0.3% fee, benefiting the pool (so the liquidity providers)
         uint numerator = amountInWithFee * (reserveOut);
         uint denominator = reserveIn * (1000) + (amountInWithFee);
@@ -109,18 +149,17 @@ contract Unidefi is Ownable{
     }
 
     function _mintLP(uint _amountA, uint _amountB) private{
-        //uint poolSharex1000 = _amount*(1000) / usdc.balanceOf(address(this));
-        //balanceLP[msg.sender] += poolSharex1000;
-        //lpTotalSupply += poolSharex1000;
-        //_mint(msg.sender,poolSharex1000);
-
-        // sachant x * y = constante dans la pool, on peut utiliser _amountA * _amountB pour 
-        // définir le nombre de LP à allouer sans se préoccuper du ratio de la pool
-        uint lp = _amountA * _amountB;
+        uint lp;
+        if (lpTotalSupply==0){
+            lp = _amountA + _amountB;
+        } else{
+            lp = (_amountA + _amountB) * lpTotalSupply / (usdc.balanceOf(address(this)) + udfi.balanceOf(address(this))) ;
+        }
+        
         balanceLP[msg.sender] += lp;
         lpTotalSupply += lp;
     }
-    function _burnLP() private{
+    function _burnAllUserLP() private{
         lpTotalSupply -= balanceLP[msg.sender];
         balanceLP[msg.sender] = 0;
         //_burn(msg.sender,_amount);
