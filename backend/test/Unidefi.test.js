@@ -21,48 +21,56 @@ describe('Test Unidefi Contract', () => {
     async function deployWith6UsersAndAllowanceFixture() {
         const {udfi, usdc, unidefi, owner, user1, user2, user3, user4, user5, user6} = await contractDeployedFixture();
         // transfer usdc to users
-        await usdc.connect(owner).transfer(user1.address,'200');
-        await usdc.connect(owner).transfer(user2.address,'200');
-        await usdc.connect(owner).transfer(user3.address,'100');
-        await usdc.connect(owner).transfer(user4.address,'200');
-        await usdc.connect(owner).transfer(user6.address,'200');
+        await usdc.connect(owner).transfer(user1.address,'2000');
+        await usdc.connect(owner).transfer(user2.address,'2000');
+        await usdc.connect(owner).transfer(user3.address,'1000');
+        await usdc.connect(owner).transfer(user4.address,'2000');
+        await usdc.connect(owner).transfer(user6.address,'2000');
         // transfer udfi to users
-        await udfi.connect(owner).transfer(user1.address,'200');
-        await udfi.connect(owner).transfer(user2.address,'200');
-        await udfi.connect(owner).transfer(user3.address,'100');
-        await udfi.connect(owner).transfer(user5.address,'200');
-        await udfi.connect(owner).transfer(user6.address,'200');
+        await udfi.connect(owner).transfer(user1.address,'2000');
+        await udfi.connect(owner).transfer(user2.address,'2000');
+        await udfi.connect(owner).transfer(user3.address,'1000');
+        await udfi.connect(owner).transfer(user5.address,'2000');
+        await udfi.connect(owner).transfer(user6.address,'2000');
 
         // allowance owner
-        await usdc.connect(owner).approve(unidefi.getAddress(),'200');
-        await udfi.connect(owner).approve(unidefi.getAddress(),'200');
+        await usdc.connect(owner).approve(unidefi.getAddress(),'2000');
+        await udfi.connect(owner).approve(unidefi.getAddress(),'2000');
         // allowance user1
-        await usdc.connect(user1).approve(unidefi.getAddress(),'200');
-        await udfi.connect(user1).approve(unidefi.getAddress(),'200');
+        await usdc.connect(user1).approve(unidefi.getAddress(),'2000');
+        await udfi.connect(user1).approve(unidefi.getAddress(),'2000');
         // allowance user2
-        await usdc.connect(user2).approve(unidefi.getAddress(),'100');
-        await udfi.connect(user2).approve(unidefi.getAddress(),'200');
+        await usdc.connect(user2).approve(unidefi.getAddress(),'1000');
+        await udfi.connect(user2).approve(unidefi.getAddress(),'2000');
         // allowance user3
-        await usdc.connect(user3).approve(unidefi.getAddress(),'200'); // more allowance than balance for some tests
-        await udfi.connect(user3).approve(unidefi.getAddress(),'200');
+        await usdc.connect(user3).approve(unidefi.getAddress(),'2000'); // more allowance than balance for tests
+        await udfi.connect(user3).approve(unidefi.getAddress(),'2000'); // more allowance than balance for tests
         // allowance user4
-        await usdc.connect(user4).approve(unidefi.getAddress(),'100');
+        await usdc.connect(user4).approve(unidefi.getAddress(),'1000');
         // allowance user5
-        await udfi.connect(user5).approve(unidefi.getAddress(),'100');
+        await udfi.connect(user5).approve(unidefi.getAddress(),'1000');
         // allowance user6
-        await usdc.connect(user6).approve(unidefi.getAddress(),'200');
-        await udfi.connect(user6).approve(unidefi.getAddress(),'100');
+        await usdc.connect(user6).approve(unidefi.getAddress(),'2000');
+        await udfi.connect(user6).approve(unidefi.getAddress(),'1000');
 
         return {udfi, usdc, unidefi, owner, user1, user2, user3, user4, user5, user6};
     }
 
-    async function deployWith3LiquidityProviders() {
-        const {udfi, usdc, unidefi, owner, user1, user2, user3, user4, user5} = await deployWith6UsersAndAllowanceFixture();
-        await unidefi.connect(owner).addLiquidity('200','200');
-        await unidefi.connect(user1).addLiquidity('200','200');
-        await unidefi.connect(user2).addLiquidity('100','100');
+    async function deployWith3LiquidityProvidersFixture() {
+        const {udfi, usdc, unidefi, owner, user1, user2, user3, user4, user5, user6} = await deployWith6UsersAndAllowanceFixture();
+        await unidefi.connect(owner).addLiquidity('2000','2000');
+        await unidefi.connect(user1).addLiquidity('2000','2000');
+        await unidefi.connect(user2).addLiquidity('1000','1000');
 
-        return {udfi, usdc, unidefi, owner, user1, user2, user3, user4, user5};
+        return {udfi, usdc, unidefi, owner, user1, user2, user3, user4, user5, user6};
+    }
+
+    async function deployWithLiquidityAndSwapFixture() {
+        const {udfi, usdc, unidefi, owner, user1, user2, user3, user4, user5, user6} = await deployWith3LiquidityProvidersFixture();
+
+        await unidefi.connect(user4).swapUSDCForUDFI('100');
+
+        return {udfi, usdc, unidefi, owner, user1, user2, user3, user4, user5, user6};
     }
 
     describe('Deployment', () => {
@@ -82,23 +90,23 @@ describe('Test Unidefi Contract', () => {
         })
     })
     describe('Allowance', () => {
-        it('A user should approve a 200 $USDC allowance to the contract, and the allowance should be exactly 200', async () => {
+        it('A user should approve a 2000 $USDC allowance to the contract, and the allowance should be exactly 2000', async () => {
             const {udfi, usdc, unidefi, owner} = await loadFixture(contractDeployedFixture);
-            await usdc.connect(owner).approve(unidefi.getAddress(),'200');
-            expect(await usdc.connect(owner).allowance(owner.address,unidefi.getAddress())).to.be.equal('200');
+            await usdc.connect(owner).approve(unidefi.getAddress(),'2000');
+            expect(await usdc.connect(owner).allowance(owner.address,unidefi.getAddress())).to.be.equal('2000');
         })
-        it('A user should approve a 200 $UDFI allowance to the contract, and the allowance should be exactly 200', async () => {
+        it('A user should approve a 2000 $UDFI allowance to the contract, and the allowance should be exactly 2000', async () => {
             const {udfi, usdc, unidefi, owner} = await loadFixture(contractDeployedFixture);
-            await udfi.connect(owner).approve(unidefi.getAddress(),'200');
-            expect(await udfi.connect(owner).allowance(owner.address,unidefi.getAddress())).to.be.equal('200');
+            await udfi.connect(owner).approve(unidefi.getAddress(),'2000');
+            expect(await udfi.connect(owner).allowance(owner.address,unidefi.getAddress())).to.be.equal('2000');
         })
-        it('revert if a user who approved an allowance of 100$USDC and 200$UDFI tries to add 101 $USDC in liquidity pool', async() =>{ 
+        it('revert if a user who approved an allowance of 1000$USDC and 2000$UDFI tries to add 1001 $USDC in liquidity pool', async() =>{ 
             const {udfi, usdc, unidefi, owner, user1, user2} = await deployWith6UsersAndAllowanceFixture();
-            expect(unidefi.connect(user2).addLiquidity('101','101')).to.be.revertedWithCustomError(unidefi, "InsufficientAllowance");
+            expect(unidefi.connect(user2).addLiquidity('1001','1001')).to.be.revertedWithCustomError(unidefi, "InsufficientAllowance");
         })
-        it('revert if a user who approved an allowance of 200$USDC and 100$UDFI tries to add 101 $UDFI in liquidity pool', async() =>{ 
+        it('revert if a user who approved an allowance of 2000$USDC and 1000$UDFI tries to add 1001 $UDFI in liquidity pool', async() =>{ 
             const {udfi, usdc, unidefi, owner, user1, user2, user3, user4, user5, user6} = await deployWith6UsersAndAllowanceFixture();
-            expect(unidefi.connect(user6).addLiquidity('101','101')).to.be.revertedWithCustomError(unidefi, "InsufficientAllowance");
+            expect(unidefi.connect(user6).addLiquidity('1001','1001')).to.be.revertedWithCustomError(unidefi, "InsufficientAllowance");
         })
     })
     describe('Add liquidity', () => {
@@ -110,9 +118,9 @@ describe('Test Unidefi Contract', () => {
             const {udfi, usdc, unidefi, owner} = await loadFixture(contractDeployedFixture);
             expect(await unidefi.connect(owner).getValueUdfiX1000()).to.be.equal('0');
         })
-        it('should revert if trying to add 199 $USDC and 200 $UDFI, because of pool ratio', async() => {
+        it('should revert if trying to add 1999 $USDC and 2000 $UDFI, because of pool ratio', async() => {
             const {udfi, usdc, unidefi, owner} = await deployWith6UsersAndAllowanceFixture();
-            await expect(unidefi.connect(owner).addLiquidity('199','200')).to.be.revertedWithCustomError(unidefi, "PoolBalanceNotRespected");
+            await expect(unidefi.connect(owner).addLiquidity('1999','2000')).to.be.revertedWithCustomError(unidefi, "PoolBalanceNotRespected");
         })
         it('should revert if trying to add 0 amounts of liquidity', async() =>{
             const {udfi, usdc, unidefi, owner} = await deployWith6UsersAndAllowanceFixture();
@@ -120,104 +128,152 @@ describe('Test Unidefi Contract', () => {
         })
         it('should revert if a user tries to add more $USDC than his own balance', async() =>{
             const {udfi, usdc, unidefi, owner, user1, user2, user3, user4, user5} = await deployWith6UsersAndAllowanceFixture();
-            expect(unidefi.connect(user5).addLiquidity('100','100')).to.be.revertedWithCustomError(unidefi, "IncorrectAmount");
+            expect(unidefi.connect(user5).addLiquidity('1000','1000')).to.be.revertedWithCustomError(unidefi, "IncorrectAmount");
         })
         it('should revert if a user tries to add more $UDFI than his own balance', async() =>{
             const {udfi, usdc, unidefi, owner, user1, user2, user3, user4} = await deployWith6UsersAndAllowanceFixture();
-            expect(unidefi.connect(user4).addLiquidity('100','100')).to.be.revertedWithCustomError(unidefi, "IncorrectAmount");
+            expect(unidefi.connect(user4).addLiquidity('1000','1000')).to.be.revertedWithCustomError(unidefi, "IncorrectAmount");
         })
-        it('should add 200 $USDC and 200 $UDFI to the pool and get 400 LP in return', async() =>{
+        it('should emit a specific event when adding liquidity to the pool', async() =>{
             const {udfi, usdc, unidefi, owner} = await deployWith6UsersAndAllowanceFixture();
-            await unidefi.connect(owner).addLiquidity('200','200');
-            expect(await unidefi.connect(owner).getMyLP()).to.be.equal('400');
+            expect(await unidefi.connect(owner).addLiquidity('2000','2000')).to.emit(unidefi, 'LiquidityAdded').withArgs(owner, '2000', '2000', '4000');
         })
-        it('should emit a specific event', async() =>{
+        it('A 1st user should add 2000 $USDC and 2000 $UDFI to the pool and get 4000 LP in return', async() =>{
             const {udfi, usdc, unidefi, owner} = await deployWith6UsersAndAllowanceFixture();
-            //await unidefi.connect(owner).addLiquidity('200','200');
-
-            expect(await unidefi.connect(owner).addLiquidity('200','200')).to.emit(unidefi, 'LiquidityAdded').withArgs(owner, '200', '200', '400');
-
+            await unidefi.connect(owner).addLiquidity('2000','2000');
+            expect(await unidefi.connect(owner).getMyLP()).to.be.equal('4000');
         })
-        it('A second user add same amounts and should also get 400 LP in return', async() =>{
+        it('A 2nd user adding same amounts should also get 4000 LP in return', async() =>{
             const {udfi, usdc, unidefi, owner, user1} = await deployWith6UsersAndAllowanceFixture();
-            await unidefi.connect(owner).addLiquidity('200','200');
-            await unidefi.connect(user1).addLiquidity('200','200');
-            expect(await unidefi.connect(user1).getMyLP()).to.be.equal('400');
+            await unidefi.connect(owner).addLiquidity('2000','2000');
+            await unidefi.connect(user1).addLiquidity('2000','2000');
+            expect(await unidefi.connect(user1).getMyLP()).to.be.equal('4000');
         })
-        it('A third user add 100 each and should get 200 LP in return', async() =>{
-            const {udfi, usdc, unidefi, owner, user1, user2} = await deployWith3LiquidityProviders();
-            expect(await unidefi.connect(user2).getMyLP()).to.be.equal('200');
+        it('A 3rd user adding 1000 $USDC and 1000 $UDFI should get 2000 LP in return', async() =>{
+            const {udfi, usdc, unidefi, owner, user1, user2} = await deployWith3LiquidityProvidersFixture();
+            expect(await unidefi.connect(user2).getMyLP()).to.be.equal('2000');
         })
-        it('At this state, total LP tokens should be exactly 1000', async() =>{
-            const {udfi, usdc, unidefi, owner, user1, user2} = await deployWith3LiquidityProviders();
-            expect(await unidefi.connect(user2).getLPTotalSupply()).to.be.equal('1000');
+        it('At this state, total LP tokens should be exactly 10000', async() =>{
+            const {udfi, usdc, unidefi, owner, user1, user2} = await deployWith3LiquidityProvidersFixture();
+            expect(await unidefi.connect(user2).getLPTotalSupply()).to.be.equal('10000');
         })
         it('At this state, with a 1/1 ratio of USDC/UDFI in the pool, $UDFI value should be 1$', async() =>{
-            const {udfi, usdc, unidefi, owner} = await deployWith3LiquidityProviders();
+            const {udfi, usdc, unidefi, owner} = await deployWith3LiquidityProvidersFixture();
             expect(await unidefi.connect(owner).getValueUdfiX1000()).to.be.equal('1000');
         })
-        it('At this state, pool reserve of $USDC should be exactly 500', async() =>{
-            const {udfi, usdc, unidefi, owner} = await deployWith3LiquidityProviders();
+        it('At this state, pool reserve of $USDC should be exactly 5000', async() =>{
+            const {udfi, usdc, unidefi, owner} = await deployWith3LiquidityProvidersFixture();
             let [usdcReserve, udfiReserve] = await unidefi.connect(owner).getPoolInfos();
-            expect(usdcReserve).to.be.equal('500');
+            expect(usdcReserve).to.be.equal('5000');
         })
-        it('At this state, pool reserve of $UDFI should be exactly 500', async() =>{
-            const {udfi, usdc, unidefi, owner} = await deployWith3LiquidityProviders();
+        it('At this state, pool reserve of $UDFI should be exactly 5000', async() =>{
+            const {udfi, usdc, unidefi, owner} = await deployWith3LiquidityProvidersFixture();
             let [usdcReserve, udfiReserve] = await unidefi.connect(owner).getPoolInfos();
-            expect(udfiReserve).to.be.equal('500');
+            expect(udfiReserve).to.be.equal('5000');
         })
     })
     describe('Remove liquidity', () => {
+        it('should emit a specific event when removing liquidity from the pool', async() =>{
+            const {udfi, usdc, unidefi, owner} = await deployWith3LiquidityProvidersFixture();
+            expect(await unidefi.connect(owner).removeAllLiquidity()).to.emit(unidefi, 'LiquidityRemoved').withArgs(owner, '2000', '2000', '4000');
+        })
         it('A user should remove his position, and the LP tokens should be burnt', async() => {
-            const {udfi, usdc, unidefi, owner, user1} = await deployWith3LiquidityProviders();
+            const {udfi, usdc, unidefi, owner, user1} = await deployWith3LiquidityProvidersFixture();
             await unidefi.connect(user1).removeAllLiquidity();
             expect(await unidefi.connect(user1).getMyLP()).to.be.equal('0');
         })
         it('should revert if a user with no pool share tries to remove liquidity', async() => {
-            const {udfi, usdc, unidefi, owner, user1, user2, user3} = await deployWith3LiquidityProviders();
+            const {udfi, usdc, unidefi, owner, user1, user2, user3} = await deployWith3LiquidityProvidersFixture();
             await expect(unidefi.connect(user3).removeAllLiquidity()).to.be.revertedWithCustomError(unidefi, "NoPoolShare");
         })
     })
     describe('Swap', () => {
-        it('a user should swap usdc for udfi', async() => {
-            const {udfi, usdc, unidefi, owner, user1, user2, user3, user4} = await deployWith3LiquidityProviders();
-            //console.log(await usdc.connect(user4).balanceOf(user4.address));
-            expect(await unidefi.connect(user4).swapUSDCForUDFI('100')).to.emit(unidefi, 'UsdcSwap').withArgs(user4, '100');
-
+        it('should emit a specific event when a user swap usdc for udfi', async() => {
+            const {udfi, usdc, unidefi, owner, user1, user2, user3, user4} = await deployWith3LiquidityProvidersFixture();
+            expect(await unidefi.connect(user4).swapUSDCForUDFI('1000')).to.emit(unidefi, 'UsdcSwap').withArgs(user4, '1000');
         })
-        it('a user should swap udfi for usdc', async() => {
-            const {udfi, usdc, unidefi, owner, user1, user2, user3, user4, user5} = await deployWith3LiquidityProviders();
-            expect(await unidefi.connect(user5).swapUDFIForUSDC('100')).to.emit(unidefi, 'UdfiSwap').withArgs(user5, '100');
+        it('should emit a specific event when a user swap udfi for usdc', async() => {
+            const {udfi, usdc, unidefi, owner, user1, user2, user3, user4, user5} = await deployWith3LiquidityProvidersFixture();
+            expect(await unidefi.connect(user5).swapUDFIForUSDC('1000')).to.emit(unidefi, 'UdfiSwap').withArgs(user5, '1000');
         })
         it('should revert if a user tries to swap 0 $USDC', async() => {
-            const {udfi, usdc, unidefi, owner, user1, user2, user3, user4} = await deployWith3LiquidityProviders();
+            const {udfi, usdc, unidefi, owner, user1, user2, user3, user4} = await deployWith3LiquidityProvidersFixture();
             await expect(unidefi.connect(user4).swapUSDCForUDFI('0')).to.be.revertedWithCustomError(unidefi, "IncorrectAmount");
         })
         it('should revert if a user tries to swap 0 $UDFI', async() => {
-            const {udfi, usdc, unidefi, owner, user1, user2, user3, user4} = await deployWith3LiquidityProviders();
+            const {udfi, usdc, unidefi, owner, user1, user2, user3, user4} = await deployWith3LiquidityProvidersFixture();
             await expect(unidefi.connect(user4).swapUDFIForUSDC('0')).to.be.revertedWithCustomError(unidefi, "IncorrectAmount");
         })
-        it('should revert if trying to swap but the liquidity pool is empty', async() => {
-            const {udfi, usdc, unidefi, owner, user1, user2, user3, user4} = await deployWith6UsersAndAllowanceFixture();
-            await expect(unidefi.connect(user4).swapUSDCForUDFI('100')).to.be.revertedWithCustomError(unidefi, "InsufficientLiquidity");
+        it('should revert if trying to swap more than than actual liquidity reserve', async() => {
+            const {udfi, usdc, unidefi, owner, user1, user2, user3, user4} = await deployWith6UsersAndAllowanceFixture(); // no liquidity in the pool
+            await expect(unidefi.connect(user4).swapUSDCForUDFI('1000')).to.be.revertedWithCustomError(unidefi, "InsufficientLiquidity");
         })
         it('should revert if trying to swap more $USDC amount than the user actual balance', async() => {
-            const {udfi, usdc, unidefi, owner, user1, user2, user3, user4, user5} = await deployWith3LiquidityProviders();
-            await expect(unidefi.connect(user5).swapUSDCForUDFI('100')).to.be.revertedWithCustomError(unidefi, "InsufficientBalance");
+            const {udfi, usdc, unidefi, owner, user1, user2, user3, user4, user5} = await deployWith3LiquidityProvidersFixture();
+            await expect(unidefi.connect(user5).swapUSDCForUDFI('1000')).to.be.revertedWithCustomError(unidefi, "InsufficientBalance");
         })
         it('should revert if trying to swap more $USDC amount than the user actual balance', async() => {
-            const {udfi, usdc, unidefi, owner, user1, user2, user3, user4} = await deployWith3LiquidityProviders();
-            await expect(unidefi.connect(user4).swapUDFIForUSDC('100')).to.be.revertedWithCustomError(unidefi, "InsufficientBalance");
+            const {udfi, usdc, unidefi, owner, user1, user2, user3, user4} = await deployWith3LiquidityProvidersFixture();
+            await expect(unidefi.connect(user4).swapUDFIForUSDC('1000')).to.be.revertedWithCustomError(unidefi, "InsufficientBalance");
         })
         it('should revert if trying to swap more $USDC than the approved allowance', async() => {
-            const {udfi, usdc, unidefi, owner, user1, user2, user3, user4} = await deployWith3LiquidityProviders();
-            await expect(unidefi.connect(user4).swapUSDCForUDFI('101')).to.be.revertedWithCustomError(unidefi, "InsufficientAllowance");
+            const {udfi, usdc, unidefi, owner, user1, user2, user3, user4} = await deployWith3LiquidityProvidersFixture();
+            await expect(unidefi.connect(user4).swapUSDCForUDFI('1001')).to.be.revertedWithCustomError(unidefi, "InsufficientAllowance");
         })
         it('should revert if trying to swap more $UDFI than the approved allowance', async() => {
-            const {udfi, usdc, unidefi, owner, user1, user2, user3, user4, user5} = await deployWith3LiquidityProviders();
-            await expect(unidefi.connect(user5).swapUDFIForUSDC('101')).to.be.revertedWithCustomError(unidefi, "InsufficientAllowance");
+            const {udfi, usdc, unidefi, owner, user1, user2, user3, user4, user5} = await deployWith3LiquidityProvidersFixture();
+            await expect(unidefi.connect(user5).swapUDFIForUSDC('1001')).to.be.revertedWithCustomError(unidefi, "InsufficientAllowance");
         })
     })
-
-
+    describe('Tests after liquidity provided and pool unbalanced by swaps', () => {
+        it('A user who swapped 100 USDC in a 5000/5000 pool should have received 97 UDFI (unbalancing the pool impacts the amount received)', async() => {
+            const {udfi, usdc, unidefi, owner, user1, user2, user3, user4} = await deployWithLiquidityAndSwapFixture();
+            expect(await udfi.connect(user4).balanceOf(user4.address)).to.be.equal('97');
+        })
+        it('The $UDFI value should should be impacted by the pool ratio and should now be 1.04$', async() =>{
+            const {udfi, usdc, unidefi, owner} = await deployWithLiquidityAndSwapFixture();
+            expect(await unidefi.connect(owner).getValueUdfiX1000()).to.be.equal('1040');
+        })
+        it('The 3rd provider can estimate its pool share before removing liquidity, and see 1020 usdc ', async() =>{
+            const {udfi, usdc, unidefi, owner, user1, user2} = await deployWithLiquidityAndSwapFixture();
+            let [usdcPreview, udfiPreview] = await unidefi.connect(user2).getUserPreviewInfos();
+            expect(usdcPreview).to.be.equal('1020');
+        })
+        it('The 3rd provider can estimate its pool share before removing liquidity, and see 980 udfi ', async() =>{
+            const {udfi, usdc, unidefi, owner, user1, user2} = await deployWithLiquidityAndSwapFixture();
+            let [usdcPreview, udfiPreview] = await unidefi.connect(user2).getUserPreviewInfos();
+            expect(udfiPreview).to.be.equal('980');
+        })        
+        it('The 3rd provider should remove its position should get back exactly 1020 $USDC', async() => {
+            const {udfi, usdc, unidefi, owner, user1, user2} = await deployWithLiquidityAndSwapFixture();
+            await unidefi.connect(user2).removeAllLiquidity();
+            expect(await usdc.balanceOf(user2.address)).to.be.equal('2020'); // This user previously had 1000 USDC balance left in its wallet
+        })
+        it('... and 980 $UDFI', async() => {
+            const {udfi, usdc, unidefi, owner, user1, user2} = await deployWithLiquidityAndSwapFixture();
+            await unidefi.connect(user2).removeAllLiquidity();
+            expect(await udfi.balanceOf(user2)).to.be.equal('1980'); // This user previously had 1000 UDFI balance left in its wallet
+        })
+        it('Before removing its liquidity, its LP balance should now be exactly 2000', async() => {
+            const {udfi, usdc, unidefi, owner, user1, user2} = await deployWithLiquidityAndSwapFixture();
+            expect(await unidefi.connect(user2).getMyLP()).to.be.equal('2000');
+        })
+        it('After removing its liquidity, its LP balance should now be exactly 0', async() => {
+            const {udfi, usdc, unidefi, owner, user1, user2} = await deployWithLiquidityAndSwapFixture();
+            await unidefi.connect(user2).removeAllLiquidity();
+            expect(await unidefi.connect(user2).getMyLP()).to.be.equal('0');
+        })
+        it('Pool infos should now display a reserve of 4080 $USDC', async() =>{
+            const {udfi, usdc, unidefi, owner, user1, user2} = await deployWithLiquidityAndSwapFixture();
+            await unidefi.connect(user2).removeAllLiquidity();
+            let [usdcReserve, udfiReserve] = await unidefi.getPoolInfos();
+            expect(usdcReserve).to.be.equal('4080');
+        })
+        it('Pool infos should now display a reserve of ... $UDFI', async() =>{
+            const {udfi, usdc, unidefi, owner, user1, user2} = await deployWithLiquidityAndSwapFixture();
+            await unidefi.connect(user2).removeAllLiquidity();
+            let [usdcReserve, udfiReserve] = await unidefi.getPoolInfos();
+            expect(udfiReserve).to.be.equal('3923');
+        })
+    })
 })

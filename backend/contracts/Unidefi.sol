@@ -52,6 +52,17 @@ contract Unidefi is Ownable{
         return(usdc.balanceOf(address(this)), udfi.balanceOf(address(this)));
     }
 
+    /**
+     * @notice returns USDC and UDFI amounts corresponding to user pool share
+     * @dev returns an array of two uint
+     */
+    function getUserPreviewInfos() public view returns(uint amountUsdc, uint amountUdfi){
+        uint usdcPreview = usdc.balanceOf(address(this)) * balanceLP[msg.sender] / lpTotalSupply;
+        uint udfiPreview = udfi.balanceOf(address(this)) * balanceLP[msg.sender] / lpTotalSupply;
+
+        return(usdcPreview, udfiPreview);
+    }
+
     // function getLPFrom(address _from) public view returns(uint){
     //     return(balanceLP[_from]);
     // }
@@ -188,19 +199,19 @@ contract Unidefi is Ownable{
 
     /**
      * @dev calculate the amountOut (tokenB) for a swap, depending on amountIn (tokenA), reserveIn (tokenA), reserveOut (tokenB)
+     *      is used for swap calculation, and swap preview in frontend
      *      returns an uint
     */
-    function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) internal pure returns (uint amountOut) {
+    function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) public view returns (uint amountOut) {
         if(amountIn == 0){
             revert IncorrectAmount();
         }
-        if(reserveOut == 0){
+        if(reserveIn < amountIn){
             revert InsufficientLiquidity();
         }
         uint amountInWithFee = amountIn * (997);   // 0.3% fee, benefiting to the pool
-        uint numerator = amountInWithFee * (reserveOut);
-        uint denominator = reserveIn * (1000) + (amountInWithFee);
-        amountOut = numerator / denominator;
+        amountOut = amountInWithFee * (reserveOut) / (reserveIn * (1000) + (amountInWithFee));
+        return amountOut;
     }
 
     /// @dev calculate LP tokens to allocate to the user when adding liquidity, update the user LP balance and the total lp supply
