@@ -131,6 +131,13 @@ describe('Test Unidefi Contract', () => {
             await unidefi.connect(owner).addLiquidity('200','200');
             expect(await unidefi.connect(owner).getMyLP()).to.be.equal('400');
         })
+        it('should emit a specific event', async() =>{
+            const {udfi, usdc, unidefi, owner} = await deployWith6UsersAndAllowanceFixture();
+            //await unidefi.connect(owner).addLiquidity('200','200');
+
+            expect(await unidefi.connect(owner).addLiquidity('200','200')).to.emit(unidefi, 'LiquidityAdded').withArgs(owner, '200', '200', '400');
+
+        })
         it('A second user add same amounts and should also get 400 LP in return', async() =>{
             const {udfi, usdc, unidefi, owner, user1} = await deployWith6UsersAndAllowanceFixture();
             await unidefi.connect(owner).addLiquidity('200','200');
@@ -180,7 +187,7 @@ describe('Test Unidefi Contract', () => {
         })
         it('a user should swap udfi for usdc', async() => {
             const {udfi, usdc, unidefi, owner, user1, user2, user3, user4, user5} = await deployWith3LiquidityProviders();
-            expect(await unidefi.connect(user5).swapUDFIForUSDC('100')).to.emit(unidefi, 'UdfiSwap')
+            expect(await unidefi.connect(user5).swapUDFIForUSDC('100')).to.emit(unidefi, 'UdfiSwap').withArgs(user5, '100');
         })
         it('should revert if a user tries to swap 0 $USDC', async() => {
             const {udfi, usdc, unidefi, owner, user1, user2, user3, user4} = await deployWith3LiquidityProviders();
