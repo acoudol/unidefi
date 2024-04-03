@@ -91,23 +91,23 @@ const PoolUser = () => {
         
         <Flex direction="row"  justifyContent="space-between" >
             <Text color="white" fontWeight="bold">Your pool tokens</Text>
-            <Text color="white" fontWeight="bold">{user.lpTokens.toString()} LPs</Text>
+            <Text color="white" fontWeight="bold">{Number(user.lpTokens)} LPs</Text>
         </Flex>
         <Flex direction="row"  justifyContent="space-between" marginTop="0.5rem">
             <Text color="white" fontWeight="bold">Your pool share</Text>
-            <Text color="white" fontWeight="bold">{user.lpPercent.toString()} %</Text>
+            <Text color="white" fontWeight="bold">{Number(user.lpPercent).toFixed(2)} %</Text>
         </Flex>
         <Flex direction="row"  justifyContent="space-between" marginTop="0.5rem">
             <Text color="white" fontWeight="bold">USDC to claim</Text>
             <Flex direction="row">
-                <Text color="white" fontWeight="bold">{Number(user.pooledUsdc)/ decimals}</Text>
+                <Text color="white" fontWeight="bold">{(Number(user.pooledUsdc)/ decimals).toFixed(2)}</Text>
                 <Image src="/logo_usdc.png" alt="logo usdc" height="1.7rem" bg="#796275" borderRadius="50%" padding="0.3em" marginLeft="0.5rem"/>
             </Flex>
         </Flex>
         <Flex direction="row"  justifyContent="space-between" marginTop="0.5rem">
             <Text color="white" fontWeight="bold">UDFI to claim</Text>
             <Flex direction="row">
-                <Text color="white" fontWeight="bold">{Number(user.pooledUdfi)/ decimals}</Text>
+                <Text color="white" fontWeight="bold">{(Number(user.pooledUdfi)/ decimals).toFixed(2)}</Text>
                 <Image src="/logo_unidefi3bis.png" alt="logo usdc" height="1.7rem" bg="#796275" borderRadius="50%" padding="0.3em" marginLeft="0.5rem"/>
             </Flex>
         </Flex>

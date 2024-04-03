@@ -74,7 +74,7 @@ const UserProvider = ({children}) => {
         } else {
             setUser(initialUser);
         }
-    }, [isConnected, balanceUsdcIsFetched,balanceUsdcIsRefetching, balanceUdfiIsFetched, balanceUdfiIsRefetching, MyLpIsRefetching, userPreviewIsFetched, userPreviewIsRefetching]);
+    }, [userAddress,isConnected, balanceUsdcIsFetched,balanceUsdcIsRefetching, balanceUdfiIsFetched, balanceUdfiIsRefetching, MyLpIsRefetching, userPreviewIsFetched, userPreviewIsRefetching, lpTotalSupplyIsFetched, lpTotalSupplyIsRefetching]);
 
     const updateUser = () => {
         //refetch();

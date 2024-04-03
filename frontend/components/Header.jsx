@@ -14,8 +14,8 @@ const Header = () => {
           <Text color="white" fontSize="2em" marginTop="1rem" marginLeft="1rem">UniDeFi</Text>
         </Flex>
         <Flex>
-          <Button borderRadius="0.7rem" marginRight="1rem">University</Button>
-          <Button borderRadius="0.7rem" marginRight="1rem" backgroundColor="rgb(254,211,255)">DeFi App</Button>
+          <Button borderRadius="0.7rem" marginRight="1rem" _hover={{backgroundColor:"rgb(254,211,255,0.8)"}}>University</Button>
+          <Button borderRadius="0.7rem" marginRight="1rem" backgroundColor="rgb(254,211,255)" _hover={{backgroundColor:"rgb(254,211,255,0.8)"}}>DeFi App</Button>
           <ConnectButton showBalance={false} label="Connect Wallet" />
         </Flex>
     </Flex>

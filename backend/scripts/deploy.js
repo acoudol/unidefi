@@ -6,13 +6,13 @@ async function main() {
   //const decimals=10**6;
   //const toMint= 999999*decimals;
 
-  const Udfi = await hre.ethers.deployContract("Udfi", [owner, "999999"]);
+  const Udfi = await hre.ethers.deployContract("Udfi", [owner, "100000"]);
   await Udfi.waitForDeployment();
   console.log(
     `UDFI deployed to ${Udfi.target}`
   );
 
-  const Usdc = await hre.ethers.deployContract("Usdc", [owner, "999999"]);
+  const Usdc = await hre.ethers.deployContract("Usdc", [owner, "100000"]);
   await Usdc.waitForDeployment();
   console.log(
     `USDC deployed to ${Usdc.target}`

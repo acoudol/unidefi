@@ -3,7 +3,7 @@ pragma solidity 0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-//import "hardhat/console.sol";
+import "hardhat/console.sol";
 
 /**
  * @title Contract Unidefi
@@ -227,9 +227,8 @@ contract Unidefi is Ownable{
         if (lpTotalSupply==0){
             lp = (_amountA + _amountB)/decimals;
         } else{
-            lp = (_amountA + (_amountB * getValueUdfiX1000()/1000)) * lpTotalSupply / (usdc.balanceOf(address(this)) + (udfi.balanceOf(address(this)) * getValueUdfiX1000()/1000))/decimals ;
+            lp = (_amountA + (_amountB * getValueUdfiX1000()/1000)) * lpTotalSupply / (usdc.balanceOf(address(this)) + (udfi.balanceOf(address(this)) * getValueUdfiX1000()/1000)) ;
         }
-        
         balanceLP[msg.sender] += lp;
         lpTotalSupply += lp;
     }
