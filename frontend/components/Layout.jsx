@@ -1,6 +1,5 @@
 "use client"
 import Header from './Header'
-import Footer from './Footer'
 import { Flex } from '@chakra-ui/react'
 
 const Layout = ({ children }) => {
@@ -18,7 +17,6 @@ const Layout = ({ children }) => {
         >
             {children}
         </Flex>
-        <Footer />
     </Flex>
   )
 }

@@ -16,7 +16,7 @@ const Header = () => {
         <Flex>
           <Button borderRadius="0.7rem" marginRight="1rem">University</Button>
           <Button borderRadius="0.7rem" marginRight="1rem" backgroundColor="rgb(254,211,255)">DeFi App</Button>
-          <ConnectButton showBalance={false} />
+          <ConnectButton showBalance={false} label="Connect Wallet" />
         </Flex>
     </Flex>
   )

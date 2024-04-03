@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 contract Usdc is ERC20{
 
     constructor(address _address, uint256 _initialSupply) ERC20("Usdc", "USDC") {
-        _mint(_address, _initialSupply);
+        _mint(_address, _initialSupply * (10 ** uint(decimals())));
     }
 
 }

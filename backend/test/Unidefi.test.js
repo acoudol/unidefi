@@ -81,12 +81,12 @@ describe('Test Unidefi Contract', () => {
         it('Owner should have 999999 $UDFI', async () => {
             const {udfi, usdc, unidefi, owner} = await loadFixture(contractDeployedFixture);
             const balanceUdfiOwner = await udfi.balanceOf(owner.address);
-            expect(balanceUdfiOwner).to.be.equal('999999');
+            expect(Number(balanceUdfiOwner)/(10**18)).to.be.equal(999999);
         })
         it('Owner should have 999999 $USDC', async () => {
             const {udfi, usdc, unidefi, owner} = await loadFixture(contractDeployedFixture);
             const balanceUsdcOwner = await usdc.balanceOf(owner.address);
-            expect(balanceUsdcOwner).to.be.equal('999999');
+            expect(Number(balanceUsdcOwner)/(10**18)).to.be.equal(999999);
         })
     })
     describe('Allowance', () => {
@@ -110,6 +110,16 @@ describe('Test Unidefi Contract', () => {
         })
     })
     describe('Add liquidity', () => {
+        it('before adding liquidity, claimable USDC should be 0', async()=>{
+            const {udfi, usdc, unidefi, owner} = await loadFixture(contractDeployedFixture);
+            let [usdcPreview, udfiPreview] = await unidefi.connect(owner).getUserPreviewInfos();
+            expect(usdcPreview).to.be.equal('0');
+        })
+        it('before adding liquidity, claimable UDFI should be 0', async()=>{
+            const {udfi, usdc, unidefi, owner} = await loadFixture(contractDeployedFixture);
+            let [usdcPreview, udfiPreview] = await unidefi.connect(owner).getUserPreviewInfos();
+            expect(udfiPreview).to.be.equal('0');
+        })
         it('initial pool ratio to respect should be 1/1', async() => {
             const {udfi, usdc, unidefi, owner} = await loadFixture(contractDeployedFixture);
             expect(await unidefi.connect(owner).getRatioPoolx1000()).to.be.equal('1000');

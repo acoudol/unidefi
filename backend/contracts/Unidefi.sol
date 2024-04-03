@@ -15,6 +15,7 @@ contract Unidefi is Ownable{
 
     IERC20 udfi;
     IERC20 usdc;
+    uint private decimals=10**18;
 
     mapping(address => uint) private balanceLP;
     uint private lpTotalSupply;
@@ -46,10 +47,10 @@ contract Unidefi is Ownable{
 
     /**
      * @notice returns USDC and UDFI total amounts currently in the pool
-     * @dev returns an array of two uint
+     * @dev returns an array of three uint
      */
-    function getPoolInfos() public view returns(uint amountUsdc, uint amountUdfi){
-        return(usdc.balanceOf(address(this)), udfi.balanceOf(address(this)));
+    function getPoolInfos() public view returns(uint amountUsdc, uint amountUdfi, uint lpTotal){
+        return(usdc.balanceOf(address(this)), udfi.balanceOf(address(this)), lpTotalSupply);
     }
 
     /**
@@ -57,9 +58,15 @@ contract Unidefi is Ownable{
      * @dev returns an array of two uint
      */
     function getUserPreviewInfos() public view returns(uint amountUsdc, uint amountUdfi){
-        uint usdcPreview = usdc.balanceOf(address(this)) * balanceLP[msg.sender] / lpTotalSupply;
-        uint udfiPreview = udfi.balanceOf(address(this)) * balanceLP[msg.sender] / lpTotalSupply;
-
+        uint usdcPreview;
+        uint udfiPreview;
+        if(lpTotalSupply==0){
+            usdcPreview=0;
+            udfiPreview=0;
+        }else{
+            usdcPreview = usdc.balanceOf(address(this)) * balanceLP[msg.sender] / lpTotalSupply;
+            udfiPreview = udfi.balanceOf(address(this)) * balanceLP[msg.sender] / lpTotalSupply;
+        }
         return(usdcPreview, udfiPreview);
     }
 
@@ -202,7 +209,7 @@ contract Unidefi is Ownable{
      *      is used for swap calculation, and swap preview in frontend
      *      returns an uint
     */
-    function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) public view returns (uint amountOut) {
+    function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) public pure returns (uint amountOut) {
         if(amountIn == 0){
             revert IncorrectAmount();
         }
@@ -218,9 +225,9 @@ contract Unidefi is Ownable{
     function _mintLP(uint _amountA, uint _amountB) private{
         uint lp;
         if (lpTotalSupply==0){
-            lp = _amountA + _amountB;
+            lp = (_amountA + _amountB)/decimals;
         } else{
-            lp = (_amountA + _amountB) * lpTotalSupply / (usdc.balanceOf(address(this)) + udfi.balanceOf(address(this))) ;
+            lp = (_amountA + (_amountB * getValueUdfiX1000()/1000)) * lpTotalSupply / (usdc.balanceOf(address(this)) + (udfi.balanceOf(address(this)) * getValueUdfiX1000()/1000))/decimals ;
         }
         
         balanceLP[msg.sender] += lp;

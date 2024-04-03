@@ -25,7 +25,7 @@ module.exports = {
             //accounts: [`0x${PRIVATE_KEY_HARDHAT}`]
         },
         hardhat: {
-            blockGasLimit: 10000000000000,
+            //blockGasLimit: 10000000000000,
             //allowUnlimitedContractSize: true,
           },
     },

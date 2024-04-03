@@ -64,7 +64,7 @@ const Swap = ({ tokenA, tokenB }) => {
                                 <Image src="/logo_usdc.png" alt="logo usdc" height="3rem" bg="#796275" borderRadius="50%" padding="0.3em"/>
                                 <Text marginLeft="0.2em" color="white" fontSize="2em" textShadow= {"#796275 1px 1px, #796275 -1px 1px, #796275 -1px -1px, #796275 1px -1px"}>USDC</Text>
                             </Flex>
-                            <Input isDisabled="true" type="number" border="none" position="relative" textAlign="right" top="0.1em" placeholder="0" width="100%" fontSize="2em"/>
+                            <Input isDisabled={true} type="number" border="none" position="relative" textAlign="right" top="0.1em" placeholder="0" width="100%" fontSize="2em"/>
                         </Flex>
                         <Flex direction="row" justifyContent="space-between" width="100%">
                             <Text marginLeft="1rem">Balance: </Text>
@@ -78,7 +78,7 @@ const Swap = ({ tokenA, tokenB }) => {
                                 <Image src="/logo_unidefi3bis.png" alt="logo unidefi" height="3rem" bg="#796275" borderRadius="50%" padding="0.3em"/>
                                 <Text marginLeft="0.2em" color="white" fontSize="2em" textShadow= {"#796275 1px 1px, #796275 -1px 1px, #796275 -1px -1px, #796275 1px -1px"}>UDFI</Text>
                             </Flex>
-                            <Input isDisabled="true" type="number" border="none" position="relative" textAlign="right" top="0.1em" placeholder="0" width="100%" fontSize="2em"/>
+                            <Input isDisabled={true} type="number" border="none" position="relative" textAlign="right" top="0.1em" placeholder="0" width="100%" fontSize="2em"/>
                         </Flex>
                         <Flex direction="row" justifyContent="space-between" width="100%">
                             <Text marginLeft="1rem">Balance: </Text>
