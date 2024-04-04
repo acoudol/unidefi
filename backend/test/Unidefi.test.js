@@ -125,13 +125,17 @@ describe('Test Unidefi Contract', () => {
             const {udfi, usdc, unidefi, owner} = await loadFixture(contractDeployedFixture);
             expect(await unidefi.connect(owner).getRatioPoolx1000()).to.be.equal('1000');
         })
-        it('with an empty pool, $UDFI value should be 0$', async() =>{
+        it('with an empty pool, starting value for $UDFI should be 1$', async() =>{
             const {udfi, usdc, unidefi, owner} = await loadFixture(contractDeployedFixture);
-            expect(await unidefi.connect(owner).getValueUdfiX1000()).to.be.equal('0');
+            expect(await unidefi.connect(owner).getValueUdfiX1000()).to.be.equal('1000');
         })
-        it('should revert if trying to add 1999 $USDC and 2000 $UDFI, because of pool ratio', async() => {
+        it('should revert if trying to add 1900 $USDC and 2000 $UDFI, because of pool ratio to respect', async() => {
             const {udfi, usdc, unidefi, owner} = await deployWith6UsersAndAllowanceFixture();
-            await expect(unidefi.connect(owner).addLiquidity(ethers.parseEther("1999"),ethers.parseEther("2000"))).to.be.revertedWithCustomError(unidefi, "PoolBalanceNotRespected");
+            await expect(unidefi.connect(owner).addLiquidity(ethers.parseEther("1900"),ethers.parseEther("2000"))).to.be.revertedWithCustomError(unidefi, "PoolBalanceNotRespected");
+        })
+        it('should revert if trying to add 2000 $USDC and 1900 $UDFI, because of pool ratio to respect', async() => {
+            const {udfi, usdc, unidefi, owner} = await deployWith6UsersAndAllowanceFixture();
+            await expect(unidefi.connect(owner).addLiquidity(ethers.parseEther("2000"),ethers.parseEther("1900"))).to.be.revertedWithCustomError(unidefi, "PoolBalanceNotRespected");
         })
         it('should revert if trying to add 0 amounts of liquidity', async() =>{
             const {udfi, usdc, unidefi, owner} = await deployWith6UsersAndAllowanceFixture();
@@ -285,6 +289,16 @@ describe('Test Unidefi Contract', () => {
             await unidefi.connect(user2).removeAllLiquidity();
             let [usdcReserve, udfiReserve] = await unidefi.getPoolInfos();
             expect(udfiReserve/BigInt(decimals)).to.be.equal('3921');
+        })
+        it('USDC/UDFI pool ratio should now be 1.04', async() => {
+            const {udfi, usdc, unidefi, owner, user1, user2} = await deployWithLiquidityAndSwapFixture();
+            await unidefi.connect(user2).removeAllLiquidity();
+            expect(await unidefi.connect(owner).getRatioPoolx1000()).to.be.equal('1040');
+        })
+        it('The value of 1$UDFI should be 1.04$', async() =>{
+            const {udfi, usdc, unidefi, owner, user1, user2} = await deployWithLiquidityAndSwapFixture();
+            await unidefi.connect(user2).removeAllLiquidity();
+            expect(await unidefi.connect(owner).getValueUdfiX1000()).to.be.equal('1040');
         })
     })
 })

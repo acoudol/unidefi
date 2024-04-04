@@ -21,7 +21,6 @@ const PoolAdd = () => {
 
     const {data: hash, isPending, writeContract, writeContractAsync} = useWriteContract({
         mutation: {
-            // Si ça a marché d'écrire dans le contrat
             onSuccess: () => {
                 // toast({
                 //     title: "Transaction submitted",
@@ -30,7 +29,6 @@ const PoolAdd = () => {
                 //     isClosable: true,
                 // });
             },
-            // Si erreur
             onError: (error) => {
                 toast({
                     title: error.message,
@@ -115,7 +113,7 @@ const PoolAdd = () => {
                     placeholder="0" width="100%" 
                     fontSize="2em" 
                     value={usdcInput} 
-                    onChange={(e) => {setUsdcInput(e.target.value) ; setUdfiInput(Number(e.target.value) * Number(totalPool.ratioUsdcUdfiX1000) / 1000)}}/>
+                    onChange={(e) => {setUsdcInput(e.target.value) ; setUdfiInput(Number(e.target.value)*1000 / Number(totalPool.ratioUsdcUdfiX1000))}}/>
                 </Flex>
                 <Flex direction="row"  width="100%">
                     <Text marginLeft="1rem">Balance: {(Number(user.balanceUsdc)/decimals).toFixed(2)}</Text>
@@ -141,7 +139,7 @@ const PoolAdd = () => {
                     width="100%" 
                     fontSize="2em" 
                     value={udfiInput} 
-                    onChange={(e) => {setUdfiInput(e.target.value) ; setUsdcInput(Number(e.target.value) * 1000 / Number(totalPool.ratioUsdcUdfiX1000))}}/>
+                    onChange={(e) => {setUdfiInput(e.target.value) ; setUsdcInput(Number(e.target.value) * Number(totalPool.ratioUsdcUdfiX1000) / 1000)}}/>
                 </Flex>
                 <Flex direction="row" width="100%">
                     <Text marginLeft="1rem">Balance: {(Number(user.balanceUdfi)/decimals).toFixed(2)}</Text>
@@ -156,7 +154,7 @@ const PoolAdd = () => {
                                     <Text>Total Value added</Text>
                                 </td>
                                 <td>
-                                    <Text>{usdcInput * 2} $</Text>
+                                    <Text>{(usdcInput * 2).toFixed(2)} $</Text>
                                 </td>
                             </tr>
                             <tr>
@@ -164,7 +162,7 @@ const PoolAdd = () => {
                                     <Text>LP tokens earned</Text>
                                 </td>
                                 <td>
-                                    <Text>{usdcInput * 2}</Text>
+                                    <Text>{(usdcInput * 2).toFixed(2)}</Text>
                                 </td>
                             </tr>
                         </tbody>

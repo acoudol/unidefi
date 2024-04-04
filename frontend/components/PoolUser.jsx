@@ -17,16 +17,14 @@ const PoolUser = () => {
 
     const {data: hash, isPending, writeContract} = useWriteContract({
         mutation: {
-            // Si ça a marché d'écrire dans le contrat
-            onSuccess: () => {
-                toast({
-                    title: "Your request is being submitted",
-                    status: "info",
-                    duration: 6000,
-                    isClosable: true,
-                });
-            },
-            // Si erreur
+             onSuccess: () => {
+            //     toast({
+            //         title: "Your request is being submitted",
+            //         status: "info",
+            //         duration: 6000,
+            //         isClosable: true,
+            //     });
+             },
             onError: (error) => {
                 toast({
                     title: error.message,

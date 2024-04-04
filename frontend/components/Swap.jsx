@@ -7,7 +7,7 @@ import { UserContext } from '../contexts/UserContext.jsx';
 import { PoolContext } from '@/contexts/PoolContext.jsx';
 import { ArrowDownIcon, RepeatIcon, InfoOutlineIcon } from "@chakra-ui/icons";
 
-const Swap = ({ tokenA, tokenB }) => {
+const Swap = () => {
     
     const decimals = 10**18;
 
@@ -17,12 +17,13 @@ const Swap = ({ tokenA, tokenB }) => {
     const [switchSwap, setSwitchSwap] = useState(false);
     const [usdcInput, setUsdcInput] = useState(0);
     const [udfiInput, setUdfiInput] = useState(0);
+    const [usdcOutput, setUsdcOutput] = useState(0);
+    const [udfiOutput, setUdfiOutput] = useState(0);
 
     const toast = useToast();
 
     const {data: hash, isPending, writeContract, writeContractAsync} = useWriteContract({
         mutation: {
-            // Si ça a marché d'écrire dans le contrat
             onSuccess: () => {
                 // toast({
                 //     title: "Your request is being submitted",
@@ -31,7 +32,6 @@ const Swap = ({ tokenA, tokenB }) => {
                 //     isClosable: true,
                 // });
             },
-            // Si erreur
             onError: (error) => {
                 toast({
                     title: error.message,
@@ -78,6 +78,7 @@ const Swap = ({ tokenA, tokenB }) => {
             args: [Number(udfiInput)*decimals],
             account: user.address
         })
+
     }    
     useEffect(() => {
         if (status === 'success') {
@@ -92,6 +93,11 @@ const Swap = ({ tokenA, tokenB }) => {
                 isClosable: true,
             });
 
+            setUsdcInput(0);
+            setUdfiInput(0);
+            setUsdcOutput(0);
+            setUdfiOutput(0);
+
         } else if (status === 'error') {
             toast({
                 title: `An error has occurred : ${failureReason}`,
@@ -99,12 +105,20 @@ const Swap = ({ tokenA, tokenB }) => {
                 duration: 6000,
                 isClosable: true,
             });
+
+            setUsdcInput(0);
+            setUdfiInput(0);
+            setUsdcOutput(0);
+            setUdfiOutput(0);
         }
+
     }, [status]);
 
     useEffect(() => {
         setUsdcInput(0);
         setUdfiInput(0);
+        setUsdcOutput(0);
+        setUdfiOutput(0);
     }, [switchSwap])
 
 
@@ -141,7 +155,7 @@ const Swap = ({ tokenA, tokenB }) => {
                             fontSize="2em"
                             value={usdcInput} 
                             //onChange={(e) => {setUsdcInput(e.target.value) ; setUdfiInput(Number(e.target.value) * Number(totalPool.ratioUsdcUdfiX1000) / 1000)}}
-                            onChange={(e) => {setUsdcInput(e.target.value) ; setUdfiInput(Number(e.target.value)*997 * Number(totalPool.totalUdfi) / ((Number(totalPool.totalUsdc)*1000)+(Number(e.target.value)*997)))}}
+                            onChange={(e) => {setUsdcInput(e.target.value) ; setUdfiOutput(Number(e.target.value)*0.997 * Number(totalPool.totalUdfi) / (Number(totalPool.totalUsdc)+(Number(e.target.value)*0.997)))}}
                             />
                         </Flex>
                         <Flex direction="row" justifyContent="space-between" width="100%">
@@ -166,11 +180,11 @@ const Swap = ({ tokenA, tokenB }) => {
                             fontSize="2em"
                             value={udfiInput} 
                             //onChange={(e) => {setUdfiInput(e.target.value) ; setUsdcInput(Number(e.target.value) * 1000 / Number(totalPool.ratioUsdcUdfiX1000))}}/>
-                            onChange={(e) => {setUdfiInput(e.target.value) ; setUsdcInput(Number(e.target.value)*997 * Number(totalPool.totalUsdc) / ((Number(totalPool.totalUdfi)*1000)+(Number(e.target.value)*997)))}}/>
+                            onChange={(e) => {setUdfiInput(e.target.value) ; setUsdcOutput(Number(e.target.value)*0.997 * Number(totalPool.totalUsdc) / (Number(totalPool.totalUdfi)+(Number(e.target.value)*0.997)))}}/>
                         </Flex>
                         <Flex direction="row" justifyContent="space-between" width="100%">
                             <Text marginLeft="1rem">Balance: {(Number(user.balanceUdfi)/decimals).toFixed(2)}</Text>
-                            <Text marginRight="1rem">{udfiInput?(Number(udfiInput)*0.997 * (Number(totalPool.totalUsdc)-Number(usdcInput)) / (Number(totalPool.totalUdfi)+(Number(udfiInput)*0.997))).toFixed(2):"-"} $</Text>
+                            <Text marginRight="1rem">{udfiInput?(Number(udfiInput) * (Number(totalPool.totalUsdc)-Number(usdcInput)) / (Number(totalPool.totalUdfi)+Number(udfiInput))).toFixed(2):"-"} $</Text>
                         </Flex>
                     </>
                 )}
@@ -199,12 +213,12 @@ const Swap = ({ tokenA, tokenB }) => {
                             placeholder="0" 
                             width="100%" 
                             fontSize="2em"
-                            value={(Number(udfiInput)*0.997).toFixed(2)}/>
+                            value={Number(udfiOutput).toFixed(2)}/>
                         </Flex>
                         <Flex direction="row" justifyContent="space-between" width="100%">
                             <Text marginLeft="1rem">Balance: {(Number(user.balanceUdfi)/decimals).toFixed(2)}</Text>
                             <Text //</Flex>marginRight="1rem">{udfiInput?(Number(udfiInput)*997/Number(totalPool.ratioUsdcUdfiX1000)):"-"} $</Text>
-                                    marginRight="1rem">{udfiInput?(Number(udfiInput)*0.997 * (Number(totalPool.totalUsdc)+Number(usdcInput)) / (Number(totalPool.totalUdfi)-(Number(udfiInput)*0.997))).toFixed(2):"-"} $</Text>
+                                    marginRight="1rem">{udfiOutput?(Number(udfiOutput) * (Number(totalPool.totalUsdc)+Number(usdcInput)) / (Number(totalPool.totalUdfi)-Number(udfiOutput))).toFixed(2):"-"} $</Text>
                         </Flex>
                     </>
                 ) : (
@@ -223,11 +237,11 @@ const Swap = ({ tokenA, tokenB }) => {
                             placeholder="0" 
                             width="100%" 
                             fontSize="2em"
-                            value={(Number(usdcInput)*0.997).toFixed(2)} />
+                            value={Number(usdcOutput).toFixed(2)} />
                         </Flex>
                         <Flex direction="row" justifyContent="space-between" width="100%">
                             <Text marginLeft="1rem">Balance: {(Number(user.balanceUsdc)/decimals).toFixed(2)}</Text>
-                            <Text marginRight="1rem">{usdcInput?(Number(usdcInput)*0.997).toFixed(2) :"-"} $</Text>
+                            <Text marginRight="1rem">{usdcOutput?Number(usdcOutput).toFixed(2) :"-"} $</Text>
                         </Flex>
                     </>
                 )}
@@ -241,7 +255,7 @@ const Swap = ({ tokenA, tokenB }) => {
                         width='10rem'>
                         {isPending ? (<Spinner/>) : ('Confirm SWAP')}
                 </Button>
-                <Tooltip hasArrow label='Higher amount leads to higher price impact' bg='rgb(109,65,88)' placement='right-start'>
+                <Tooltip hasArrow label='Price impact may occurs if highly unbalancing the pool' bg='rgb(109,65,88)' placement='right-start'>
                     <InfoOutlineIcon boxSize={9} color="white"  borderRadius="50%" padding="0.3rem" marginLeft="1rem"/>
                 </Tooltip>
             </Flex>

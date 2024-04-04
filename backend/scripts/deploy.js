@@ -3,8 +3,6 @@ const {ethers} = require("hardhat");
 
 async function main() {
   const [owner] = await ethers.getSigners() // pour test hardhat
-  //const decimals=10**6;
-  //const toMint= 999999*decimals;
 
   const Udfi = await hre.ethers.deployContract("Udfi", [owner, "100000"]);
   await Udfi.waitForDeployment();

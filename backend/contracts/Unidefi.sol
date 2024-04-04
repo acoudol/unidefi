@@ -98,7 +98,7 @@ contract Unidefi is Ownable{
         // Qa.Va = Qb.Vb    =>    Vb = Qa.Va / Qb (avec Va = 1$)
         uint value1000Udfi;
         if(udfi.balanceOf(address(this)) == 0){
-            value1000Udfi = 0;
+            value1000Udfi = 1000;
         }else{
             value1000Udfi = (usdc.balanceOf(address(this)) * (1000) / udfi.balanceOf(address(this)));
         }
@@ -130,7 +130,7 @@ contract Unidefi is Ownable{
             revert IncorrectAmount();
         }
 
-        if(_amountUsdc < ((_amountUdfi * getRatioPoolx1000()) / 1000)){
+        if(_amountUsdc < (_amountUdfi * getValueUdfiX1000() * 99 / (1000*100)) || _amountUsdc > (_amountUdfi * getValueUdfiX1000() * 101 / (1000*100))){ // 1% variance agreed (avoiding round problems)
             revert PoolBalanceNotRespected();
         }
 
