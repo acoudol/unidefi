@@ -7,9 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "predeploy": "yarn run build",
-    "deploy": "gh-pages -d build"
+    "lint": "next lint"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",
@@ -27,8 +25,5 @@
     "react-dom": "^18",
     "viem": "2.x",
     "wagmi": "^2.5.12"
-  },
-  "devDependencies": {
-    "gh-pages": "^6.1.1"
   }
 }
