@@ -1,6 +1,6 @@
 "use client"
 import {useContext, useEffect, useState} from "react";
-import { Box, Flex, FormControl, FormLabel, Input, Button, Text, HStack, NumberInput, Divider, Select, Image, Tooltip, Spinner, useToast } from "@chakra-ui/react";
+import { Box, Flex, Input, Button, Text, Divider, Image, Tooltip, Spinner, useToast } from "@chakra-ui/react";
 import { abi, contractAddress, udfiAbi, udfiAddress, usdcAbi, usdcAddress } from '@/constants'
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { UserContext } from '../contexts/UserContext.jsx';
@@ -154,7 +154,6 @@ const Swap = () => {
                             width="100%" 
                             fontSize="2em"
                             value={usdcInput} 
-                            //onChange={(e) => {setUsdcInput(e.target.value) ; setUdfiInput(Number(e.target.value) * Number(totalPool.ratioUsdcUdfiX1000) / 1000)}}
                             onChange={(e) => {setUsdcInput(e.target.value) ; setUdfiOutput(Number(e.target.value)*0.997 * Number(totalPool.totalUdfi) / (Number(totalPool.totalUsdc)+(Number(e.target.value)*0.997)))}}
                             />
                         </Flex>
@@ -179,7 +178,6 @@ const Swap = () => {
                             width="100%" 
                             fontSize="2em"
                             value={udfiInput} 
-                            //onChange={(e) => {setUdfiInput(e.target.value) ; setUsdcInput(Number(e.target.value) * 1000 / Number(totalPool.ratioUsdcUdfiX1000))}}/>
                             onChange={(e) => {setUdfiInput(e.target.value) ; setUsdcOutput(Number(e.target.value)*0.997 * Number(totalPool.totalUsdc) / (Number(totalPool.totalUdfi)+(Number(e.target.value)*0.997)))}}/>
                         </Flex>
                         <Flex direction="row" justifyContent="space-between" width="100%">
@@ -217,8 +215,7 @@ const Swap = () => {
                         </Flex>
                         <Flex direction="row" justifyContent="space-between" width="100%">
                             <Text marginLeft="1rem">Balance: {(Number(user.balanceUdfi)/decimals).toFixed(2)}</Text>
-                            <Text //</Flex>marginRight="1rem">{udfiInput?(Number(udfiInput)*997/Number(totalPool.ratioUsdcUdfiX1000)):"-"} $</Text>
-                                    marginRight="1rem">{udfiOutput?(Number(udfiOutput) * (Number(totalPool.totalUsdc)+Number(usdcInput)) / (Number(totalPool.totalUdfi)-Number(udfiOutput))).toFixed(2):"-"} $</Text>
+                            <Text marginRight="1rem">{udfiOutput?(Number(udfiOutput) * (Number(totalPool.totalUsdc)+Number(usdcInput)) / (Number(totalPool.totalUdfi)-Number(udfiOutput))).toFixed(2):"-"} $</Text>
                         </Flex>
                     </>
                 ) : (

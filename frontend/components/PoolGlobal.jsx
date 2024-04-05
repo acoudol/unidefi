@@ -1,6 +1,6 @@
 "use client"
-import { Flex, Text, Box, TableContainer,Table, Tbody, Th, Tr, Td, Divider} from '@chakra-ui/react';
-import {useContext, useEffect, useState} from "react";
+import { Flex, Text, Box, Divider} from '@chakra-ui/react';
+import {useContext} from "react";
 import { PoolContext } from '../contexts/PoolContext.jsx';
 import numeral from "numeral"; 
 

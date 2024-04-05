@@ -8,9 +8,9 @@ const PoolMain = () => {
   return (
     <Flex>
         <Grid h='200px'
-  templateRows='repeat(2, 1fr)'
-  templateColumns='repeat(2, 1fr)'
-  gap={4}>
+        templateRows='repeat(2, 1fr)'
+        templateColumns='repeat(2, 1fr)'
+        gap={4}>
             <GridItem rowSpan={2} colSpan={1}>
                 <PoolAdd />
             </GridItem>

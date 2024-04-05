@@ -1,6 +1,6 @@
 "use client"
 import { Flex, Text, Box, Image, Button, Divider, Spinner, useToast} from '@chakra-ui/react'
-import {useContext, useEffect, useState} from "react";
+import {useContext, useEffect} from "react";
 import {abi, contractAddress} from '@/constants'
 import {useWaitForTransactionReceipt, useWriteContract} from "wagmi";
 import { UserContext } from '../contexts/UserContext.jsx';

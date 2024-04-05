@@ -2,7 +2,7 @@ const hre = require("hardhat");
 const {ethers} = require("hardhat");
 
 async function main() {
-  const [owner] = await ethers.getSigners() // pour test hardhat
+  const [owner] = await ethers.getSigners()
 
   const Udfi = await hre.ethers.deployContract("Udfi", [owner, "100000"]);
   await Udfi.waitForDeployment();

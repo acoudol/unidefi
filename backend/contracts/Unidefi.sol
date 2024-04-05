@@ -3,13 +3,13 @@ pragma solidity 0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 
 /**
  * @title Contract Unidefi
  * @author Arthur Coudol
  * @notice You can use this contract to for liquidity pool + swap features
- * @dev Unidefi is Ownable to have access to oppenzeppelin's built-in onlyOwner modifier, for further project's fees integration
+ * @dev Unidefi is Ownable to have access to oppenzeppelin's built-in onlyOwner modifier, for further project's fees integration (unused for Alyra certification)
  */
 contract Unidefi is Ownable{
 
@@ -49,7 +49,7 @@ contract Unidefi is Ownable{
      * @notice returns USDC and UDFI total amounts currently in the pool
      * @dev returns an array of three uint
      */
-    function getPoolInfos() public view returns(uint amountUsdc, uint amountUdfi, uint lpTotal){
+    function getPoolInfos() external view returns(uint amountUsdc, uint amountUdfi, uint lpTotal){
         return(usdc.balanceOf(address(this)), udfi.balanceOf(address(this)), lpTotalSupply);
     }
 
@@ -57,7 +57,7 @@ contract Unidefi is Ownable{
      * @notice returns USDC and UDFI amounts corresponding to user pool share
      * @dev returns an array of two uint
      */
-    function getUserPreviewInfos() public view returns(uint amountUsdc, uint amountUdfi){
+    function getUserPreviewInfos() external view returns(uint amountUsdc, uint amountUdfi){
         uint usdcPreview;
         uint udfiPreview;
         if(lpTotalSupply==0){
@@ -86,7 +86,7 @@ contract Unidefi is Ownable{
      * @notice returns the total LP balance
      * @dev returns an uint
      */
-    function getLPTotalSupply() public view returns(uint){
+    function getLPTotalSupply() external view returns(uint){
         return(lpTotalSupply);
     }
 
@@ -109,7 +109,7 @@ contract Unidefi is Ownable{
      * @notice returns the pool ratio usdc/udfi , multiplied by a 1000 factore to reduce round problems
      * @dev returns an uint
      */
-    function getRatioPoolx1000() public view returns(uint){
+    function getRatioPoolx1000() external view returns(uint){
         uint ratiox1000;
         if(udfi.balanceOf(address(this))==0){
             ratiox1000 = 1000; // 1 pour 1 au démarrage de la pool
@@ -123,7 +123,7 @@ contract Unidefi is Ownable{
      * @notice a user can add usdc + udfi to the pool, and an LP amount is allocated to it 
      * @dev input 2 uint, update the user LP balance, transfer the tokens to the contract, and emit the amounts transfered + updated LP balance
      */
-    function addLiquidity(uint _amountUsdc, uint _amountUdfi) public{
+    function addLiquidity(uint _amountUsdc, uint _amountUdfi) external{
         if( _amountUsdc > usdc.balanceOf(msg.sender) 
             || _amountUdfi == 0 
             || _amountUdfi > udfi.balanceOf(msg.sender)){
@@ -150,7 +150,7 @@ contract Unidefi is Ownable{
      * @notice a user can remove its liquidity pool position, by burning its total LP and get back its corresponding share from the pool 
      * @dev reset the user LP balance, transfer the tokens to the user, and emit the amounts transfered + updated LP balance
      */
-    function removeAllLiquidity() public{
+    function removeAllLiquidity() external{
         if(balanceLP[msg.sender] == 0){
             revert NoPoolShare();
         }
@@ -170,7 +170,7 @@ contract Unidefi is Ownable{
      * @notice a user can send USDC to get UDFI in return, amount depending on pool ratio, minus a 0.3% fee staying in the pool benefiting the liquidity providers
      * @dev input uint, transfers usdc to the contract address, send back udfi to the user, emit the amounts transfered
      */
-    function swapUSDCForUDFI(uint _amountUSDC) public {
+    function swapUSDCForUDFI(uint _amountUSDC) external {
         if(_amountUSDC > usdc.balanceOf(msg.sender)){
             revert InsufficientBalance();
         }
@@ -189,7 +189,7 @@ contract Unidefi is Ownable{
      * @notice a user can send UDFI to get USDC in return, amount depending on pool ratio, minus a 0.3% fee staying in the pool benefiting the liquidity providers
      * @dev input uint, transfers udfi to the contract address, send back usdc to the user, emit the amounts transfered
      */
-    function swapUDFIForUSDC(uint _amountUDFI) public {
+    function swapUDFIForUSDC(uint _amountUDFI) external {
         if(_amountUDFI > udfi.balanceOf(msg.sender)){
             revert InsufficientBalance();
         }
@@ -209,7 +209,7 @@ contract Unidefi is Ownable{
      *      is used for swap calculation, and swap preview in frontend
      *      returns an uint
     */
-    function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) public pure returns (uint amountOut) {
+    function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) private pure returns (uint amountOut) {
         if(amountIn == 0){
             revert IncorrectAmount();
         }

@@ -1,11 +1,7 @@
 import RainbowKitAndChakraProvider from "./RainbowKitAndChakraProvider";
 import Layout from "@/components/Layout";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import ContextsProvider from "@/contexts/ContextsProvider.jsx";
-
-
-//const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "UniDeFi",
