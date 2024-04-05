@@ -1,12 +1,15 @@
 {
   "name": "frontend",
   "version": "0.1.0",
+  "home": "https://acoudol.github.io/unidefi",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "predeploy": "next build",
+    "deploy": "gh-pages -d build"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",
@@ -24,5 +27,8 @@
     "react-dom": "^18",
     "viem": "2.x",
     "wagmi": "^2.5.12"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.1.1"
   }
 }
