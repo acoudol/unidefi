@@ -22,7 +22,7 @@ export default function Home() {
             {isChecked == false ? (<Swap />) : (<PoolMain />)}
           </Flex>
       ) : (
-        <p> Non connecté </p>
+        <p> Not connected </p>
       )}
     </>
   );

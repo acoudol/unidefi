@@ -88,11 +88,11 @@ const PoolUser = () => {
         <Divider border='solid'  width="100%" color="white" marginTop="1rem" marginBottom="2rem"/>
         
         <Flex direction="row"  justifyContent="space-between" >
-            <Text color="white" fontWeight="bold">Your pool tokens</Text>
+            <Text color="white" fontWeight="bold">My pool tokens</Text>
             <Text color="white" fontWeight="bold">{Number(user.lpTokens)} LPs</Text>
         </Flex>
         <Flex direction="row"  justifyContent="space-between" marginTop="0.5rem">
-            <Text color="white" fontWeight="bold">Your pool share</Text>
+            <Text color="white" fontWeight="bold">My pool share</Text>
             <Text color="white" fontWeight="bold">{Number(user.lpPercent).toFixed(2)} %</Text>
         </Flex>
         <Flex direction="row"  justifyContent="space-between" marginTop="0.5rem">
