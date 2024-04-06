@@ -1,12 +1,12 @@
 // Déploiement local hardhat 
-export const contractAddress="0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
-export const udfiAddress="0x5FbDB2315678afecb367f032d93F642f64180aa3"
-export const usdcAddress="0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+//export const contractAddress="0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+//export const udfiAddress="0x5FbDB2315678afecb367f032d93F642f64180aa3"
+//export const usdcAddress="0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
 
 // Déploiement testnet sépolia
-// export const contractAddress="0xA72910b8FE0FfeEB581CBdd606387fAA33f09eA6"
-// export const udfiAddress="0xC4F24a95Fce6C1131C233748cB40afc4F9D0a1CB"
-// export const usdcAddress="0xd6f7E391A5718F86bEa1756241D205367Fb95770"
+ export const contractAddress="0x84dFE0580C985981776355bc4F2668Db287331CD"
+ export const udfiAddress="0xA6a4d807117Abb5eBe6F35490a65991fE48999BC"
+ export const usdcAddress="0xA58b65fc905272a028D0026029C775Ca24278Fe9"
 
 // Abis
 export const abi=[

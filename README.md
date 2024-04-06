@@ -9,8 +9,8 @@ Groupe de travail constitué de:
 
 ## Liens
 [Application déployée sur Vercel](https://unidefi-teal.vercel.app/)    
-[Adresse du contrat Unidefi déployé sur Sepolia et vérifié](https://sepolia.etherscan.io/address/0xa72910b8fe0ffeeb581cbdd606387faa33f09ea6) :
-`0xA72910b8FE0FfeEB581CBdd606387fAA33f09eA6`
+[Adresse du contrat Unidefi déployé sur Sepolia et vérifié](https://sepolia.etherscan.io/address/0x84dFE0580C985981776355bc4F2668Db287331CD#code) :
+`0x84dFE0580C985981776355bc4F2668Db287331CD`
 
 
 ## Périmètre de l'application
