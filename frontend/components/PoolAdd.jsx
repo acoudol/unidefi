@@ -100,7 +100,7 @@ const PoolAdd = () => {
                 <Text color="white" fontSize="1.5em" fontWeight="bold"> Add liquidity </Text>
             </Flex>
             <Divider border='solid' width="100%" color="white" marginTop="1.2rem" marginBottom="1rem"/>
-            <Box padding="0.7em" border="0.2rem solid" borderColor="grey" borderRadius="1em" bgColor="rgb(254,211,255, 0.5)">
+            <Box padding="0.7em"  borderRadius="1em" bgColor="rgb(254,211,255, 0.5)">
                 <Flex direction="row" justifyContent="space-between" width="100%">
                     <Flex direction="row" justifyContent="start" width="100%">
                         <Image src="/logo_usdc.png" alt="logo usdc" height="3rem" bg="#796275" borderRadius="50%" padding="0.3em"/>
@@ -124,7 +124,7 @@ const PoolAdd = () => {
                 <AddIcon padding="0.3rem"  color="white"  boxSize="40px" backgroundColor= "rgba(255, 255, 255, 0.2)" borderRadius="50%" />
             </Flex>
 
-            <Box padding="0.7em" border="0.2rem solid" borderColor="grey" borderRadius="1em" bgColor="rgb(254,211,255, 0.5)" >
+            <Box padding="0.7em"  borderRadius="1em" bgColor="rgb(254,211,255, 0.5)" >
                 <Flex direction="row" justifyContent="space-between" width="100%">
                     <Flex direction="row" justifyContent="left" width="100%">
                         <Image src="/logo_unidefi3bis.png" alt="logo unidefi" height="3rem" bg="#796275" borderRadius="50%" padding="0.3em"/>
@@ -145,7 +145,7 @@ const PoolAdd = () => {
                     <Text marginLeft="1rem">Balance: {(Number(user.balanceUdfi)/decimals).toFixed(2)}</Text>
                 </Flex>
             </Box>
-            <Divider border='solid'  width="100%" color="white" marginTop="2rem" marginBottom="0.2rem"/>
+            <Divider border='solid'  width="100%" color="white" marginTop="2.7rem" marginBottom="0.2rem"/>
             <Box padding="0.7em" borderRadius="1em" >
                     <table  >
                         <tbody>

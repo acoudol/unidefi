@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 /**
  * @title Contract Unidefi
  * @author Arthur Coudol
- * @notice You can use this contract to for liquidity pool + swap features
+ * @notice You can use this contract for liquidity pool + swap features
  * @dev Unidefi is Ownable to have access to oppenzeppelin's built-in onlyOwner modifier, for further project's fees integration (unused for Alyra certification)
  */
 contract Unidefi is Ownable{
