@@ -49,16 +49,16 @@ Frontend:
 
 
 ## Sécurité
-Les contrats ERC20 héritent du standard d'Openzeppelin
-Pas de tableaux, pas de boucle for
-Contrôles sur le respect du ratio de la pool
-L'attribution/burn des LP tokens se fait par le biais de fonctions private pour éviter toute manipulation externe
+- Les contrats ERC20 héritent du standard d'Openzeppelin
+- Pas de tableaux, pas de boucle for
+- Contrôles sur le respect du ratio de la pool
+- L'attribution/burn des LP tokens se fait par le biais de fonctions private pour éviter toute manipulation externe
 
 
 
 ## Optimisations
-Peu de variables globales
-Toutes sont déclarées en portée private 
-Utilisation d'un mapping pour la gestion des LP ( address => uint )
-Utilisation de custom errors
-Attention portée aux types de fonctions: private, external, pure view
+- Peu de variables globales
+- Toutes sont déclarées en portée private 
+- Utilisation d'un mapping pour la gestion des LP ( address => uint )
+- Utilisation de custom errors
+- Attention portée aux types de fonctions: private, external, pure view
